@@ -1,8 +1,10 @@
 const MIN_BOARD_SIZE = 10;
 const MAX_BOARD_SIZE = 20;
-const PERCENT_MINES = 0.15
-
 const BOARD_SIZE = MIN_BOARD_SIZE + Math.floor(Math.random()*(MAX_BOARD_SIZE-MIN_BOARD_SIZE))
+
+const MIN_PERCENT_MINES = 0.10;
+const MAX_PERCENT_MINES = 0.25;
+const PERCENT_MINES = MIN_PERCENT_MINES + Math.random()*(MAX_PERCENT_MINES-MIN_PERCENT_MINES);
 const NUM_MINES = Math.floor(PERCENT_MINES * BOARD_SIZE ** 2);
 
 var root = document.querySelector(':root');
