@@ -20,6 +20,7 @@ let timerInterval;
 
 const boardElement = document.getElementById('board');
 const newGameButton = document.getElementById('new-game');
+const optionsButton = document.getElementById('options');
 const flagsElement = document.getElementById('flags');
 const timeElement = document.getElementById('time');
 
