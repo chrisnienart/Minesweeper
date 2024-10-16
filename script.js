@@ -21,6 +21,7 @@ let timerInterval;
 const boardElement = document.getElementById('board');
 const newGameButton = document.getElementById('new-game');
 const optionsButton = document.getElementById('options');
+const scoresButton = document.getElementById('scores');
 const flagsElement = document.getElementById('flags');
 const timeElement = document.getElementById('time');
 
@@ -209,6 +210,19 @@ function updateTimer() {
     timeElement.textContent = `Time: ${timeElapsed}`;
 }
 
+// Button actions
+// Start a new game
 newGameButton.addEventListener('click', initializeBoard);
 
+// Set game play options
+optionsButton.addEventListener('click', () => {
+    window.open('options.html', '_blank', 'width=600,height=400');
+});
+
+// View top scores
+scoresButton.addEventListener('click', () => {
+    window.open('scores.html', '_blank', 'width=600,height=400');
+});
+
+// Begin game
 initializeBoard();

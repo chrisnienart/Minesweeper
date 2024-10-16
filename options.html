@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Options</title>
+</head>
+<body>
+    <h1>Game Options</h1>
+    <h2>Difficulty</h2>
+    <form id="difficultyForm">
+        <label>
+            <input type="radio" name="difficulty" value="easy"> Easy
+        </label>
+        <br>
+        <label>
+            <input type="radio" name="difficulty" value="medium"> Medium
+        </label>
+        <br>
+        <label>
+            <input type="radio" name="difficulty" value="hard"> Hard
+        </label>
+        <br>
+        <label>
+            <input type="radio" name="difficulty" value="random"> Random difficulty
+        </label>
+        <br>
+        <label>
+            <input type="radio" name="difficulty" value="custom"> Custom settings
+        </label>
+    </form>
+    <h2>Scoring</h2>
+    <form id="scoringForm">
+        <label>
+            <input type="radio" name="scoring" value="rated"> Keep score
+        </label>
+        <br>
+        <label>
+            <input type="radio" name="scoring" value="unrated"> Don't record scores
+        </label>
+    </form>
+    <br>
+    <button id="save">Save</button>
+    <script src="options.js"></script>
+</body>
+</html>
