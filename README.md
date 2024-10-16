@@ -1,5 +1,5 @@
 # Minesweeper
-Build out a minesweeper game with game play options and top score tracking
+Use AI coding assistants to build out a minesweeper game with game play options, top score tracking, and more.
 
 ## Known Issues
 1. Game play options and score tracking options are not implemented 
