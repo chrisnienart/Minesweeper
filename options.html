@@ -4,43 +4,69 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Options</title>
+    <link rel="stylesheet" href="options.css">
 </head>
 <body>
-    <h1>Game Options</h1>
-    <h2>Difficulty</h2>
-    <form id="difficultyForm">
-        <label>
-            <input type="radio" name="difficulty" value="easy"> Easy
-        </label>
+    <div id="options-container">
+        <h1>Game Options</h1>
+        <h2>Difficulty</h2>
+        <form id="difficultyForm">
+            <label>
+                <input type="radio" name="mode" value="simple"> Simple settings
+            </label>
+            <br>
+            <div id="simpleOptions" class="indented" style="display:none;">
+                <label>
+                    <input type="radio" name="difficulty" value="easy"> Easy
+                </label>
+                <br>
+                <label>
+                    <input type="radio" name="difficulty" value="medium"> Medium
+                </label>
+                <br>
+                <label>
+                    <input type="radio" name="difficulty" value="hard"> Hard
+                </label>
+            </div>
+            <label>
+                <input type="radio" name="mode" value="random"> Random settings
+            </label>
+            <br>
+            <div id="randomOptions" class="indented" style="display:none;">
+                <label for="randomMinBoardSizeInput">Board size:</label>
+                <input type="number" id="randomMinBoardSizeInput" name="randomMinBoardSize" min="8" max="30" value="10">
+                <label for="randomMaxBoardSizeInput"> to </label>
+                <input type="number" id="randomMaxBoardSizeInput" name="randomMaxBoardSize" min="8" max="30" value="20">
+                <br>
+                <label for="randomMinPercentMinesInput">Mine percentage:</label>
+                <input type="number" id="randomMinPercentMinesInput" name="randomMinPercentMines" min="0.05" max="0.30" step="0.01" value="0.10">
+                <label for="randomMaxPercentMinesInput"> to </label>
+                <input type="number" id="randomMaxPercentMinesInput" name="randomMaxPercentMines" min="0.05" max="0.30" step="0.01" value="0.20">
+            </div>
+            <label>
+                <input type="radio" name="mode" value="custom"> Custom settings
+            </label>
+            <div id="customOptions" class="indented" style="display:none;">
+                <label for="customBoardSizeInput">Board size:</label>
+                <input type="number" id="customBoardSizeInput" name="customBoardSize" min="8" max="30" value="10">
+                <br>
+                <label for="customPercentMinesInput">Mine percentage:</label>
+                <input type="number" id="customPercentMinesInput" name="customPercentMines" min="0.05" max="0.30" step="0.01" value="0.15">
+            </div>
+        </form>
+        <h2>Scoring</h2>
+        <form id="scoringForm">
+            <label>
+                <input type="radio" name="scoring" value="rated"> Keep score
+            </label>
+            <br>
+            <label>
+                <input type="radio" name="scoring" value="unrated"> Don't record scores
+            </label>
+        </form>
         <br>
-        <label>
-            <input type="radio" name="difficulty" value="medium"> Medium
-        </label>
-        <br>
-        <label>
-            <input type="radio" name="difficulty" value="hard"> Hard
-        </label>
-        <br>
-        <label>
-            <input type="radio" name="difficulty" value="random"> Random difficulty
-        </label>
-        <br>
-        <label>
-            <input type="radio" name="difficulty" value="custom"> Custom settings
-        </label>
-    </form>
-    <h2>Scoring</h2>
-    <form id="scoringForm">
-        <label>
-            <input type="radio" name="scoring" value="rated"> Keep score
-        </label>
-        <br>
-        <label>
-            <input type="radio" name="scoring" value="unrated"> Don't record scores
-        </label>
-    </form>
-    <br>
-    <button id="save">Save</button>
+        <button id="save">Save</button>
+    </div>
     <script src="options.js"></script>
 </body>
 </html>

@@ -1,4 +1,19 @@
 {
-    "difficulty": "hard",
+    "mode":"simple",
+    "modeOptions": {
+        "simple":{
+            "difficulty": "medium"
+        },
+        "random": {
+            "minBoardSize": 10,
+            "maxBoardSize": 20, 
+            "minPercentMines": 0.15,
+            "maxPercentMines": 0.20
+        },
+        "custom": {
+            "boardSize": 12,
+            "percentMines": 0.17
+        }
+    },
     "scoring": "rated"
 }
