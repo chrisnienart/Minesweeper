@@ -138,6 +138,7 @@ function revealCell(row, col) {
     } else {
         if (board[row][col].neighborMines > 0) {
             cell.textContent = board[row][col].neighborMines;
+            cell.classList.add(`mine-${board[row][col].neighborMines}`); // P4e7c
         } else {
             // Reveal neighboring cells for empty cells
             for (let i = -1; i <= 1; i++) {
