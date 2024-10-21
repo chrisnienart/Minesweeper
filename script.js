@@ -1,22 +1,6 @@
-const MIN_BOARD_SIZE = 10;
-const MAX_BOARD_SIZE = 20;
-const BOARD_SIZE = MIN_BOARD_SIZE + Math.floor(Math.random()*(MAX_BOARD_SIZE-MIN_BOARD_SIZE))
-
-const MIN_PERCENT_MINES = 0.10;
-const MAX_PERCENT_MINES = 0.25;
-const PERCENT_MINES = MIN_PERCENT_MINES + Math.random()*(MAX_PERCENT_MINES-MIN_PERCENT_MINES);
-const NUM_MINES = Math.floor(PERCENT_MINES * BOARD_SIZE ** 2);
-
-var root = document.querySelector(':root');
-var rootStyles = getComputedStyle(root);
-root.style.setProperty('--grid-size', BOARD_SIZE)
-
-let board = [];
-let mineLocations = [];
-let gameOver = false;
-let flagsPlaced = 0;
-let timeElapsed = 0;
 let timerInterval;
+let boardSize; // Define boardSize globally
+let numMines; // Define numMines globally
 
 const boardElement = document.getElementById('board');
 const newGameButton = document.getElementById('new-game');
@@ -25,7 +9,69 @@ const scoresButton = document.getElementById('scores');
 const flagsElement = document.getElementById('flags');
 const timeElement = document.getElementById('time');
 
-function initializeBoard() {
+function fetchSettings() {
+    return fetch('settings.json')
+        .then(response => response.json())
+        .then(settings => {
+            return settings;
+        })
+        .catch(error => console.error('Error fetching settings:', error));
+}
+
+function setBoardSize() {
+    return fetchSettings().then(settings => {
+        if (settings.mode === 'simple') {
+            if(settings.modeOptions.simple === 'easy') { 
+                boardSize = settings.modeOptions.simpleOptions.easy.boardSize;
+            } else if (settings.modeOptions.simple === 'medium') {
+                boardSize = settings.modeOptions.simpleOptions.medium.boardSize;
+            } else if (settings.modeOptions.simple === 'hard') {
+                boardSize = settings.modeOptions.simpleOptions.hard.boardSize;
+            }
+        } else if (settings.mode === 'random') {
+            boardSize = settings.modeOptions.random.minBoardSize + Math.floor(Math.random() * (settings.modeOptions.random.maxBoardSize - settings.modeOptions.random.minBoardSize));
+        } else if (settings.mode === 'custom') {
+            boardSize = settings.modeOptions.custom.boardSize;
+        } else {
+            boardSize = 9;
+        }
+        console.log('Game mode set to: ', settings.mode);
+        console.log('Board size set to: ', boardSize);
+        var root = document.querySelector(':root');
+        var rootStyles = getComputedStyle(root);
+        root.style.setProperty('--grid-size', boardSize);
+        return boardSize;
+    });
+}
+
+function setPercentMines() {
+    return fetchSettings().then(settings => {
+        let percentMines;
+        if (settings.mode === 'simple') {
+            if (settings.modeOptions.simple === 'easy') { 
+                percentMines = settings.modeOptions.simpleOptions.easy.percentMines;
+            } else if (settings.modeOptions.simple === 'medium') {
+                percentMines = settings.modeOptions.simpleOptions.medium.percentMines;
+            } else if (settings.modeOptions.simple === 'hard') {
+                percentMines = settings.modeOptions.simpleOptions.hard.percentMines;
+            }
+        } else if (settings.mode === 'random') {
+            percentMines = settings.modeOptions.random.minPercentMines + Math.random() * (settings.modeOptions.random.maxPercentMines - settings.modeOptions.random.minPercentMines);
+        } else if (settings.mode === 'custom') {
+            percentMines = settings.modeOptions.custom.percentMines;
+        } else {
+            percentMines = 0.09;
+        }
+        console.log('Percent mines set to: ', percentMines);
+        return percentMines;
+    });
+}
+
+async function initializeBoard() {
+    boardSize = await setBoardSize(); // Use global boardSize
+    const percentMines = await setPercentMines();
+    numMines = Math.floor(percentMines * boardSize ** 2); // Use global numMines
+
     board = [];
     mineLocations = [];
     gameOver = false;
@@ -34,11 +80,10 @@ function initializeBoard() {
     clearInterval(timerInterval);
     updateFlagsCount();
     updateTimer();
-
     // Create empty board
-    for (let i = 0; i < BOARD_SIZE; i++) {
+    for (let i = 0; i < boardSize; i++) {
         board[i] = [];
-        for (let j = 0; j < BOARD_SIZE; j++) {
+        for (let j = 0; j < boardSize; j++) {
             board[i][j] = {
                 isMine: false,
                 isRevealed: false,
@@ -47,31 +92,26 @@ function initializeBoard() {
             };
         }
     }
-
     // Place mines
     let minesPlaced = 0;
-    while (minesPlaced < NUM_MINES) {
-        const row = Math.floor(Math.random() * BOARD_SIZE);
-        const col = Math.floor(Math.random() * BOARD_SIZE);
+    while (minesPlaced < numMines) {
+        const row = Math.floor(Math.random() * boardSize);
+        const col = Math.floor(Math.random() * boardSize);
         if (!board[row][col].isMine) {
             board[row][col].isMine = true;
             mineLocations.push({ row, col });
             minesPlaced++;
         }
     }
-
     // Calculate neighbor mines
-    //neighborMines = convolve(board.isMine,I3,same_padding)
-    //Probably need a list comprehension to assign board[i][j].neighborMines
-    for (let i = 0; i < BOARD_SIZE; i++) {
-        for (let j = 0; j < BOARD_SIZE; j++) {
+    for (let i = 0; i < boardSize; i++) {
+        for (let j = 0; j < boardSize; j++) {
             if (!board[i][j].isMine) {
                 board[i][j].neighborMines = countNeighborMines(i, j);
             }
         }
     }
-
-    renderBoard();
+    renderBoard(boardSize);
     startTimer();
 }
 
@@ -81,7 +121,7 @@ function countNeighborMines(row, col) {
         for (let j = -1; j <= 1; j++) {
             const newRow = row + i;
             const newCol = col + j;
-            if (newRow >= 0 && newRow < BOARD_SIZE && newCol >= 0 && newCol < BOARD_SIZE) {
+            if (newRow >= 0 && newRow < boardSize && newCol >= 0 && newCol < boardSize) {
                 if (board[newRow][newCol].isMine) {
                     count++;
                 }
@@ -91,10 +131,10 @@ function countNeighborMines(row, col) {
     return count;
 }
 
-function renderBoard() {
+function renderBoard(boardSize) {
     boardElement.innerHTML = '';
-    for (let i = 0; i < BOARD_SIZE; i++) {
-        for (let j = 0; j < BOARD_SIZE; j++) {
+    for (let i = 0; i < boardSize; i++) {
+        for (let j = 0; j < boardSize; j++) {
             const cell = document.createElement('div');
             cell.className = 'cell';
             cell.dataset.row = i;
@@ -125,7 +165,7 @@ function revealCell(row, col) {
     if (board[row][col].isRevealed || board[row][col].isFlagged) return;
 
     board[row][col].isRevealed = true;
-    const cell = boardElement.children[row * BOARD_SIZE + col];
+    const cell = boardElement.children[row * boardSize + col];
     cell.classList.add('revealed');
 
     if (board[row][col].isMine) {
@@ -145,7 +185,7 @@ function revealCell(row, col) {
                 for (let j = -1; j <= 1; j++) {
                     const newRow = row + i;
                     const newCol = col + j;
-                    if (newRow >= 0 && newRow < BOARD_SIZE && newCol >= 0 && newCol < BOARD_SIZE) {
+                    if (newRow >= 0 && newRow < boardSize && newCol >= 0 && newCol < boardSize) {
                         revealCell(newRow, newCol);
                     }
                 }
@@ -159,7 +199,7 @@ function revealCell(row, col) {
 function toggleFlag(row, col) {
     if (board[row][col].isRevealed) return;
 
-    const cell = boardElement.children[row * BOARD_SIZE + col];
+    const cell = boardElement.children[row * boardSize + col];
     if (board[row][col].isFlagged) {
         board[row][col].isFlagged = false;
         cell.textContent = '';
@@ -174,7 +214,7 @@ function toggleFlag(row, col) {
 
 function revealAllMines() {
     for (const { row, col } of mineLocations) {
-        const cell = boardElement.children[row * BOARD_SIZE + col];
+        const cell = boardElement.children[row * boardSize + col];
         cell.classList.add('revealed', 'mine');
         cell.textContent = '💣';
     }
@@ -182,14 +222,14 @@ function revealAllMines() {
 
 function checkWinCondition() {
     let revealedCount = 0;
-    for (let i = 0; i < BOARD_SIZE; i++) {
-        for (let j = 0; j < BOARD_SIZE; j++) {
+    for (let i = 0; i < boardSize; i++) {
+        for (let j = 0; j < boardSize; j++) {
             if (board[i][j].isRevealed) {
                 revealedCount++;
             }
         }
     }
-    if (revealedCount === BOARD_SIZE * BOARD_SIZE - NUM_MINES && gameOver === false) {
+    if (revealedCount === boardSize ** 2 - numMines && gameOver === false) {
         gameOver = true;
         alert('Congratulations! You won!');
         clearInterval(timerInterval);

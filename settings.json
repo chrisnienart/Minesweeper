@@ -1,8 +1,20 @@
 {
-    "mode":"simple",
+    "mode":"custom",
     "modeOptions": {
-        "simple":{
-            "difficulty": "medium"
+        "simple":"medium",
+        "simpleOptions":{
+            "easy":{
+                "boardSize": 10,
+                "percentMines": 0.15
+            },
+            "medium":{
+                "boardSize": 12,
+                "percentMines": 0.18
+            },
+            "hard":{
+                "boardSize": 18,
+                "percentMines": 0.22
+            }
         },
         "random": {
             "minBoardSize": 10,
