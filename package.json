@@ -1,0 +1,12 @@
+{
+  "name": "minesweeper",
+  "version": "1.0.0",
+  "description": "A Minesweeper game with options and score tracking",
+  "main": "index.html",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
