@@ -1,0 +1,11 @@
+{
+    "scores": [
+        {
+            "date": "2023-05-01",
+            "time": 20,
+            "board-size": 10,
+            "percent-mines": 0.15,
+            "difficulty": "hard"
+        }
+    ]
+}
