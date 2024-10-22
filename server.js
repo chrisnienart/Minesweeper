@@ -1,9 +1,10 @@
 const express = require('express');
+const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const port = 3000;
+const port = 3000; // Define the port as a global variable
 
 app.use(express.json());
 
@@ -28,6 +29,22 @@ app.post('/save-settings', (req, res) => {
     });
 });
 
+const server = http.createServer((req, res) => {
+  fs.readFile('index.html', (err, data) => {
+    if (err) {
+      res.writeHead(404);
+      res.end(JSON.stringify(err));
+      return;
+    }
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.end(data);
+  });
+});
+
 app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
+    console.log(`Express server is running on http://localhost:${port}`);
+});
+
+server.listen(port, () => {
+  console.log(`HTTP server running at http://localhost:${port}/`);
 });

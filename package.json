@@ -1,12 +1,17 @@
 {
   "name": "minesweeper",
   "version": "1.0.0",
-  "description": "A Minesweeper game with options and score tracking",
-  "main": "index.html",
+  "description": "A Minesweeper game project",
+  "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "express": "^4.17.1"
+    
+  },
+  "devDependencies": {
+    
   }
 }
