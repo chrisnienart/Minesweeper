@@ -29,6 +29,19 @@ app.post('/save-settings', (req, res) => {
     });
 });
 
+app.get('/settings.json', (req, res) => {
+    const settingsPath = path.join(__dirname, 'settings.json');
+    fs.readFile(settingsPath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading settings:', err);
+            res.status(500).send('Error reading settings');
+        } else {
+            res.setHeader('Content-Type', 'application/json');
+            res.status(200).send(data);
+        }
+    });
+});
+
 const server = http.createServer((req, res) => {
   fs.readFile('index.html', (err, data) => {
     if (err) {
