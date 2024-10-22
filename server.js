@@ -8,6 +8,7 @@ const port = 3000; // Define the port as a global variable
 
 app.use(express.json());
 
+// Middleware to set CORS headers
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
@@ -25,6 +26,20 @@ app.post('/save-settings', (req, res) => {
         } else {
             console.log('Settings saved successfully');
             res.status(200).send('Settings saved successfully');
+        }
+    });
+});
+
+app.get('/settings.json', (req, res) => {
+    const settingsPath = path.join(__dirname, 'settings.json');
+    fs.readFile(settingsPath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading settings:', err);
+            res.status(500).send('Error reading settings');
+        } else {
+            res.setHeader('Content-Type', 'application/json');
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.status(200).send(data);
         }
     });
 });

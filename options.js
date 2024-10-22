@@ -1,7 +1,9 @@
 function fetchInitialSettings() {
     console.log('Fetching initial settings...');
     const port = 3000; // Use the global variable for the port
-    fetch(`http://localhost:${port}/settings.json`)
+    fetch(`http://localhost:${port}/settings.json`, {
+        mode: 'no-cors'
+    })
         .then(response => response.json())
         .then(settings => {
             //console.log('Initial settings fetched:', settings);
