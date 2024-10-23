@@ -1,12 +1,15 @@
 function fetchInitialSettings() {
     console.log('Fetching initial settings...');
-    const port = 3000; // Use the global variable for the port
-    fetch(`http://localhost:${port}/settings.json`, {
-        mode: 'no-cors'
-    })
-        .then(response => response.json())
+    const port = 3000;
+    fetch(`http://localhost:${port}/settings.json`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(settings => {
-            //console.log('Initial settings fetched:', settings);
+            console.log('Initial settings fetched:', settings);
             const difficultyMode = document.getElementById('difficultyForm');
             const scoringForm = document.getElementById('scoringForm');
 
@@ -95,7 +98,7 @@ function saveOptions() {
     };
 
     // Send a POST request to save the settings
-    fetch('/save-settings', {
+    fetch(`http://localhost:${port}/settings.json`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
