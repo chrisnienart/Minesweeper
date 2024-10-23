@@ -1,9 +1,16 @@
+const port = 3000;
+
 function fetchInitialSettings() {
     console.log('Fetching initial settings...');
-    fetch('settings.json')
-        .then(response => response.json())
+    fetch(`http://localhost:${port}/settings.json`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(settings => {
-            //console.log('Initial settings fetched:', settings);
+            console.log('Initial settings fetched:', settings);
             const difficultyMode = document.getElementById('difficultyForm');
             const scoringForm = document.getElementById('scoringForm');
 
@@ -59,37 +66,54 @@ function fetchInitialSettings() {
         .catch(error => console.error('Error fetching initial settings:', error));
 }
 
-// function populateForm(content) {
-//     const data = JSON.parse(content);
-//     document.getElementById('difficulty').value = data.difficulty;
-//     document.getElementById('scoring').value = data.scoring;
-// }
-
 function saveOptions() {
-    const difficulty = document.querySelector('input[name="mode"]:checked')?.value || 'simple';
+    const mode = document.querySelector('input[name="mode"]:checked')?.value || 'simple';
+    const difficulty = document.querySelector('input[name="difficulty"]:checked')?.value || 'medium';
+    const randomMinBoardSize = document.getElementById('randomMinBoardSizeInput').value;
+    const randomMaxBoardSize = document.getElementById('randomMaxBoardSizeInput').value;
+    const randomMinPercentMines = document.getElementById('randomMinPercentMinesInput').value;
+    const randomMaxPercentMines = document.getElementById('randomMaxPercentMinesInput').value;
+    const customBoardSize = document.getElementById('customBoardSizeInput').value;
+    const customPercentMines = document.getElementById('customPercentMinesInput').value;
     const scoring = document.querySelector('input[name="scoring"]:checked')?.value || 'rated';
 
     // Create a settings object
     const settings = {
-        difficulty: difficulty,
+        mode: mode,
+        modeOptions: {
+            simple: {
+                difficulty: difficulty
+            },
+            random: {
+                minBoardSize: randomMinBoardSize,
+                maxBoardSize: randomMaxBoardSize,
+                minPercentMines: randomMinPercentMines,
+                maxPercentMines: randomMaxPercentMines
+            },
+            custom: {
+                boardSize: customBoardSize,
+                percentMines: customPercentMines
+            }
+        },
         scoring: scoring
     };
 
-    // Convert the settings object to a JSON string
-    const settingsJson = JSON.stringify(settings);
-
-    // Specify the file path
-    const file_path = "settings.json";
-
-    // Write JSON data to the file NOT WORKING
-    const fs = require('fs');
-    fs.writeFile(file_path, JSON.stringify(data, null, 4), (err) => {
-        if (err) {
-            console.error("Error writing file:", err);
+    // Send a POST request to save the settings
+    fetch(`http://localhost:${port}/settings.json`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(settings)
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log('Settings saved successfully.');
         } else {
-            console.log("Data written to file successfully.");
+            console.error('Error saving settings.');
         }
-    });
+    })
+    .catch(error => console.error('Error saving settings:', error));
 }
 
 document.getElementById('difficultyForm').addEventListener('change', function(event) {
