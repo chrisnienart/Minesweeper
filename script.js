@@ -230,7 +230,8 @@ initializeBoard();
 
 // Function to start the server
 function startServer() {
-    fetch('/start-server.sh')
+    const port = 3000;
+    fetch('http://localhost:${port}/start-server.sh')
         .then(response => response.text())
         .then(data => console.log(data))
         .catch(error => console.error('Error starting server:', error));
