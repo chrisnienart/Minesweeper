@@ -227,3 +227,14 @@ scoresButton.addEventListener('click', () => {
 
 // Begin game
 initializeBoard();
+
+// Function to start the server
+function startServer() {
+    fetch('/start-server.sh')
+        .then(response => response.text())
+        .then(data => console.log(data))
+        .catch(error => console.error('Error starting server:', error));
+}
+
+// Start the server when the page is loaded
+window.onload = startServer;
