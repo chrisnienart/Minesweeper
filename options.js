@@ -30,7 +30,7 @@ function fetchInitialSettings() {
             const simpleOptions = document.getElementById('simpleOptions');
             const simpleRadios = simpleOptions.querySelectorAll('input[name="difficulty"]');
             simpleRadios.forEach(radio => {
-                if (radio.value === settings.modeOptions.simple.difficulty) {
+                if (radio.value === settings.modeOptions.simple) {
                     radio.checked = true;
                     console.log('Simple difficulty radio set:', radio.value);
                 }
