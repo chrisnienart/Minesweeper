@@ -4,8 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scores</title>
+    <link rel="stylesheet" href="scores.css">
 </head>
 <body>
-    <h1>Top Scores</h1>
+    <h1>Scores</h1>
+    <div id="controls">
+        <button id="close">Close</button>
+    </div>
+    <div id="score-container">
+        <h2>Top Scores</h2>
+        <table id="score-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Mode</th>
+                    <th>Board Size</th>
+                    <th class="percent-field">Mine Percent</th>
+                </tr>
+            </thead>
+            <tbody id="top-scores">
+                <!-- Rows of scores will be dynamically added here by scores.js -->
+            </tbody>
+        </table>
+    </div>
+        <h2>All Scores</h2>
+        <table id="score-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Mode</th>
+                    <th>Board Size</th>
+                    <th class="percent-field">Mine Percent</th>
+                </tr>
+            </thead>
+            <tbody id="all-scores">
+                <!-- Rows of scores will be dynamically added here by scores.js -->
+            </tbody>
+        </table>
+    </div>
+    <script src="scores.js"></script>
 </body>
 </html>

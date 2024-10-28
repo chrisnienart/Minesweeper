@@ -1,31 +1,31 @@
 {
-    "mode":"custom",
-    "modeOptions": {
-        "simple":"medium",
-        "simpleOptions":{
-            "easy":{
-                "boardSize": 10,
-                "percentMines": 0.15
-            },
-            "medium":{
-                "boardSize": 12,
-                "percentMines": 0.18
-            },
-            "hard":{
-                "boardSize": 18,
-                "percentMines": 0.22
-            }
-        },
-        "random": {
-            "minBoardSize": 10,
-            "maxBoardSize": 20, 
-            "minPercentMines": 0.15,
-            "maxPercentMines": 0.20
-        },
-        "custom": {
-            "boardSize": 12,
-            "percentMines": 0.17
-        }
+  "mode": "simple",
+  "modeOptions": {
+    "simple": "easy",
+    "simpleOptions": {
+      "easy": {
+        "boardSize": 10,
+        "percentMines": 0.15
+      },
+      "medium": {
+        "boardSize": 12,
+        "percentMines": 0.18
+      },
+      "hard": {
+        "boardSize": 18,
+        "percentMines": 0.22
+      }
     },
-    "scoring": "rated"
+    "random": {
+      "minBoardSize": 12,
+      "maxBoardSize": 20,
+      "minPercentMines": 0.17,
+      "maxPercentMines": 0.22
+    },
+    "custom": {
+      "boardSize": 12,
+      "percentMines": 0.22
+    }
+  },
+  "scoring": "rated"
 }

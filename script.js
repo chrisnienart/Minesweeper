@@ -1,7 +1,10 @@
 let timerInterval;
 let boardSize; // Define boardSize globally
 let numMines; // Define numMines globally
+let timeElapsed = 0; // Initialize timeElapsed globally
+let settings; // Define settings globally
 
+const port = 3000;
 const boardElement = document.getElementById('board');
 const newGameButton = document.getElementById('new-game');
 const optionsButton = document.getElementById('options');
@@ -12,7 +15,8 @@ const timeElement = document.getElementById('time');
 function fetchSettings() {
     return fetch('settings.json')
         .then(response => response.json())
-        .then(settings => {
+        .then(settingsData => {
+            settings = settingsData; // Store settings globally
             return settings;
         })
         .catch(error => console.error('Error fetching settings:', error));
@@ -233,7 +237,43 @@ function checkWinCondition() {
         gameOver = true;
         alert('Congratulations! You won!');
         clearInterval(timerInterval);
+
+        // Call the writeScores function
+        if (settings.scoring === 'rated') {
+            writeScores();
+        }
     }
+}
+
+function writeScores() {
+    // Get values when the game is over
+    const date = new Date().toISOString().split('T')[0]; // Format date as "yyyy-mm-dd"
+    const writeTime = timeElapsed; // Use the global timeElapsed value
+    const writeMode = settings.mode;
+    const writeBoardSize = boardSize;
+    const writePercentMines = numMines / (boardSize ** 2);
+
+    // Append the new entry to scores.json
+    fetch(`http://localhost:${port}/scores.json`)
+        .then(response => response.json())
+        .then(data => {
+            console.log('Adding new score to file:', data); 
+            data.scores.push({
+                date: date,
+                time: writeTime,
+                mode: writeMode,
+                boardSize: writeBoardSize,
+                percentMines: writePercentMines
+            });
+            return fetch(`http://localhost:${port}/scores.json`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+        })
+        .catch(error => console.error('Error updating scores:', error));
 }
 
 function updateFlagsCount() {

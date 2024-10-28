@@ -1,14 +1,19 @@
 const port = 3000;
 
-function fetchInitialSettings() {
-    console.log('Fetching initial settings...');
-    fetch(`http://localhost:${port}/settings.json`)
+function fetchSettings() {
+    return fetch(`http://localhost:${port}/settings.json`)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
             return response.json();
         })
+        .catch(error => console.error('Error fetching settings:', error));
+}
+
+function fetchInitialSettings() {
+    console.log('Fetching initial settings...');
+    fetchSettings()
         .then(settings => {
             console.log('Initial settings fetched:', settings);
             const difficultyMode = document.getElementById('difficultyForm');
@@ -67,53 +72,61 @@ function fetchInitialSettings() {
 }
 
 function saveOptions() {
-    const mode = document.querySelector('input[name="mode"]:checked')?.value || 'simple';
-    const difficulty = document.querySelector('input[name="difficulty"]:checked')?.value || 'medium';
-    const randomMinBoardSize = document.getElementById('randomMinBoardSizeInput').value;
-    const randomMaxBoardSize = document.getElementById('randomMaxBoardSizeInput').value;
-    const randomMinPercentMines = document.getElementById('randomMinPercentMinesInput').value;
-    const randomMaxPercentMines = document.getElementById('randomMaxPercentMinesInput').value;
-    const customBoardSize = document.getElementById('customBoardSizeInput').value;
-    const customPercentMines = document.getElementById('customPercentMinesInput').value;
-    const scoring = document.querySelector('input[name="scoring"]:checked')?.value || 'rated';
+    fetchSettings()
+        .then(settings => {
+            console.log('Current settings fetched:', settings);
+            //retrieve simple mode settings
+            const simpleOptions = settings.modeOptions.simpleOptions;
+            
+            const mode = document.querySelector('input[name="mode"]:checked')?.value || 'simple';
+            const simpleDifficulty = document.querySelector('input[name="difficulty"]:checked')?.value || 'medium';
+            const randomMinBoardSize = parseFloat(document.getElementById('randomMinBoardSizeInput').value);
+            const randomMaxBoardSize = parseFloat(document.getElementById('randomMaxBoardSizeInput').value);
+            const randomMinPercentMines = parseFloat(document.getElementById('randomMinPercentMinesInput').value);
+            const randomMaxPercentMines = parseFloat(document.getElementById('randomMaxPercentMinesInput').value);
+            const customBoardSize = parseFloat(document.getElementById('customBoardSizeInput').value);
+            const customPercentMines = parseFloat(document.getElementById('customPercentMinesInput').value);
+            const scoring = document.querySelector('input[name="scoring"]:checked')?.value || 'rated';
 
-    // Create a settings object
-    const settings = {
-        mode: mode,
-        modeOptions: {
-            simple: {
-                difficulty: difficulty
-            },
-            random: {
-                minBoardSize: randomMinBoardSize,
-                maxBoardSize: randomMaxBoardSize,
-                minPercentMines: randomMinPercentMines,
-                maxPercentMines: randomMaxPercentMines
-            },
-            custom: {
-                boardSize: customBoardSize,
-                percentMines: customPercentMines
-            }
-        },
-        scoring: scoring
-    };
+            // Create a settings object
+            const settingsToSave = {
+                mode: mode,
+                modeOptions: {
+                    simple: simpleDifficulty,
+                    simpleOptions: simpleOptions,
+                    random: {
+                        minBoardSize: randomMinBoardSize,
+                        maxBoardSize: randomMaxBoardSize,
+                        minPercentMines: randomMinPercentMines,
+                        maxPercentMines: randomMaxPercentMines
+                    },
+                    custom: {
+                        boardSize: customBoardSize,
+                        percentMines: customPercentMines
+                    }
+                },
+                scoring: scoring
+            };
 
-    // Send a POST request to save the settings
-    fetch(`http://localhost:${port}/settings.json`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(settings)
-    })
-    .then(response => {
-        if (response.ok) {
-            console.log('Settings saved successfully.');
-        } else {
-            console.error('Error saving settings.');
-        }
-    })
-    .catch(error => console.error('Error saving settings:', error));
+            // Send a POST request to save the settings
+            fetch(`http://localhost:${port}/save-settings`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(settingsToSave)
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Settings saved successfully:', settingsToSave);
+                } else {
+                    console.error('Error saving settings. Status:', response.status);
+                    response.text().then(text => console.error('Response text:', text));
+                }
+            })
+            .catch(error => console.error('Error saving settings:', error));
+        })
+        .catch(error => console.error('Error fetching current settings:', error));
 }
 
 document.getElementById('difficultyForm').addEventListener('change', function(event) {
@@ -157,6 +170,10 @@ document.getElementById('difficultyForm').addEventListener('change', function(ev
 // Save options
 const saveButton = document.getElementById('save');
 saveButton.addEventListener('click', saveOptions);
+
+// Close window
+const closeButton = document.getElementById('close');
+closeButton.addEventListener('click', () => window.close());
 
 // Fetch initial settings when the page loads
 window.onload = fetchInitialSettings;

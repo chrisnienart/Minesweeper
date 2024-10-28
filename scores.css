@@ -1,0 +1,18 @@
+#score-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+#score-table th, #score-table td {
+    width: 20%;
+    text-align: left;
+}
+
+#score-table td.percent-field {
+    white-space: nowrap;
+}
+
+#score-table td.percent-field::after {
+    content: '%';
+    margin-left: 0.2em;
+}
