@@ -119,6 +119,7 @@ function saveOptions() {
             .then(response => {
                 if (response.ok) {
                     console.log('Settings saved successfully:', settingsToSave);
+                    showConfirmationMessage(); // Call the function to show confirmation message
                 } else {
                     console.error('Error saving settings. Status:', response.status);
                     response.text().then(text => console.error('Response text:', text));
@@ -127,6 +128,18 @@ function saveOptions() {
             .catch(error => console.error('Error saving settings:', error));
         })
         .catch(error => console.error('Error fetching current settings:', error));
+}
+
+function showConfirmationMessage() {
+    const confirmationMessage = document.getElementById('confirmationMessage');
+    confirmationMessage.style.display = 'block';
+    setTimeout(() => {
+        confirmationMessage.style.color = '';
+        confirmationMessage.style.fontWeight = '';
+    }, 2000);
+    setTimeout(() => {
+        confirmationMessage.style.display = 'none';
+    }, 3000);
 }
 
 document.getElementById('difficultyForm').addEventListener('change', function(event) {
