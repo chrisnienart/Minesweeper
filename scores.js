@@ -56,9 +56,35 @@ function fetchScores() {
         .catch(error => console.error('Error fetching scores:', error));
 }
 
+function clearScores() {
+    if (confirm('Are you sure you want to clear all scores? This action cannot be undone.')) {
+        fetch(`http://localhost:${port}/clear-scores`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Scores cleared successfully');
+                fetchScores(); // Refresh the scores display
+            } else {
+                console.error('Error clearing scores. Status:', response.status);
+            }
+        })
+        .catch(error => console.error('Error clearing scores:', error));
+    } else {
+        console.log('Clear scores action was cancelled.');
+    }
+}
+
 // Close window
 const closeButton = document.getElementById('close');
 closeButton.addEventListener('click', () => window.close());
+
+// Clear scores
+const clearScoresButton = document.getElementById('clear-scores');
+clearScoresButton.addEventListener('click', clearScores);
 
 // Fetch scores when the page loads
 window.onload = fetchScores;
