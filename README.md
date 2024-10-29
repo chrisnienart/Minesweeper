@@ -5,7 +5,7 @@ Play minesweeper with game play options, top score tracking, and more.
 To begin play, (1) run `node server.js` and (2) open the game in your browser at http://localhost:3000/index.html.
 
 ## Game Play Options
-In *Simple mode*, choose between predefined easy, medium, hard game settings.  In
+In *Simple mode*, choose between predefined easy, medium, hard game settings.
 
 In *Random mode*, choose a range for the board size, and a range for mine percentage. The game will randomly generate a board size and mine percentage within the specified ranges.
 
