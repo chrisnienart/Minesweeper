@@ -1,4 +1,15 @@
-
 .indented {
     margin-left: 40px;
+}
+
+#confirmationMessage {
+    display: none;
+    color: green;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+#confirmationMessage.default {
+    color: black;
+    font-weight: normal;
 }
