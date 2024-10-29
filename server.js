@@ -88,6 +88,22 @@ app.put('/scores.json', (req, res) => {
     });
 });
 
+// Route to clear scores.json
+app.post('/clear-scores', (req, res) => {
+    const scoresPath = path.join(__dirname, 'scores.json');
+    const emptyScores = { scores: [] };
+
+    fs.writeFile(scoresPath, JSON.stringify(emptyScores, null, 2), (err) => {
+        if (err) {
+            console.error('Error clearing scores:', err);
+            res.status(500).send('Error clearing scores');
+        } else {
+            console.log('Scores cleared successfully');
+            res.status(200).send('Scores cleared successfully');
+        }
+    });
+});
+
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
