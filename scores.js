@@ -13,25 +13,29 @@ function fetchScores() {
             const scores = data.scores;
             console.log('Scores fetched:', scores);
             
-            // Sort scores by time in ascending order
-            scores.sort((a, b) => a.time - b.time);
+            // Sort scores by performance in descending order
+            scores.sort((a, b) => calculatePerformance(b.time, b['boardSize'], b['percentMines']) - calculatePerformance(a.time, a['boardSize'], a['percentMines']));
 
             // Set top scores 
             const topScoreTableBody = document.querySelector('#top-scores');
             topScoreTableBody.innerHTML = ''; // Clear previous entries
             let topScoreCount = 0;
             scores.forEach(score => {
-                if (score.time < 100 && topScoreCount < 10) {
-                    const scoreRow = document.createElement('tr');
-                    scoreRow.innerHTML = `
-                        <td>${score.date}</td>
-                        <td>${score.time}</td>
-                        <td>${score.mode}</td>
-                        <td>${score['boardSize']}</td>
-                        <td class="percent-field">${Math.round(score['percentMines'] * 100)}</td>
-                    `;
-                    topScoreTableBody.appendChild(scoreRow);
-                    topScoreCount++;
+                if (topScoreCount < 10) {
+                    const performance = calculatePerformance(score.time, score['boardSize'], score['percentMines']);
+                    if(performance > 2.5) {
+                        const scoreRow = document.createElement('tr');
+                        scoreRow.innerHTML = `
+                            <td>${score.date}</td>
+                            <td>${score.time}</td>
+                            <td>${score.mode}</td>
+                            <td>${score['boardSize']}</td>
+                            <td class="percent-field">${Math.round(score['percentMines'] * 100)}</td>
+                            <td>${performance.toFixed(2)}</td>
+                        `;
+                        topScoreTableBody.appendChild(scoreRow);
+                        topScoreCount++;
+                    }
                 }
             });
 
@@ -42,6 +46,7 @@ function fetchScores() {
             const allScoreTableBody = document.querySelector('#all-scores');
             allScoreTableBody.innerHTML = ''; // Clear previous entries
             scores.forEach(score => {
+                const performance = calculatePerformance(score.time, score['boardSize'], score['percentMines']);
                 const scoreRow = document.createElement('tr');
                 scoreRow.innerHTML = `
                     <td>${score.date}</td>
@@ -49,6 +54,7 @@ function fetchScores() {
                     <td>${score.mode}</td>
                     <td>${score['boardSize']}</td>
                     <td class="percent-field">${Math.round(score['percentMines'] * 100)}</td>
+                    <td>${performance.toFixed(2)}</td>
                 `;
                 allScoreTableBody.appendChild(scoreRow);
             });
@@ -76,6 +82,13 @@ function clearScores() {
     } else {
         console.log('Clear scores action was cancelled.');
     }
+}
+
+function calculatePerformance(time, boardSize, percentMines) {
+    const difficultyRatio = percentMines / (1 - percentMines);
+    const adjustedNumMines = Math.round(boardSize ** 2 * difficultyRatio);
+    const adjustedTime = Math.sqrt(time / difficultyRatio);
+    return adjustedNumMines / adjustedTime;
 }
 
 // Close window
