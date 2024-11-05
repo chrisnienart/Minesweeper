@@ -3,6 +3,7 @@ let boardSize; // Define boardSize globally
 let numMines; // Define numMines globally
 let timeElapsed = 0; // Initialize timeElapsed globally
 let settings; // Define settings globally
+let revealedCount = 0; // Define revealedCount globally
 
 const port = 3000;
 const boardElement = document.getElementById('board');
@@ -81,6 +82,7 @@ async function initializeBoard() {
     gameOver = false;
     flagsPlaced = 0;
     timeElapsed = 0;
+    revealedCount = 0; // Reset revealedCount
     clearInterval(timerInterval);
     updateFlagsCount();
     updateTimer();
@@ -169,6 +171,7 @@ function revealCell(row, col) {
     if (board[row][col].isRevealed || board[row][col].isFlagged) return;
 
     board[row][col].isRevealed = true;
+    revealedCount++; // Increment revealedCount
     const cell = boardElement.children[row * boardSize + col];
     cell.classList.add('revealed');
 
@@ -225,14 +228,6 @@ function revealAllMines() {
 }
 
 function checkWinCondition() {
-    let revealedCount = 0;
-    for (let i = 0; i < boardSize; i++) {
-        for (let j = 0; j < boardSize; j++) {
-            if (board[i][j].isRevealed) {
-                revealedCount++;
-            }
-        }
-    }
     if (revealedCount === boardSize ** 2 - numMines && gameOver === false) {
         gameOver = true;
         alert('Congratulations! You won!');
@@ -248,11 +243,13 @@ function checkWinCondition() {
 function writeScores() {
     // Get values when the game is over
     const date = new Date().toISOString().split('T')[0]; // Format date as "yyyy-mm-dd"
-    const writeTime = timeElapsed; // Use the global timeElapsed value
+    const writeTime = timeElapsed;
     const writeMode = settings.mode;
     const writeBoardSize = boardSize;
-    const writePercentMines = numMines / (boardSize ** 2);
-
+    const writeNumMines = numMines;
+    const writeResult = "won"; // TODO: Determine result
+    const writeRevealedCount = revealedCount;
+    
     // Append the new entry to scores.json
     fetch(`http://localhost:${port}/scores.json`)
         .then(response => response.json())
@@ -263,7 +260,9 @@ function writeScores() {
                 time: writeTime,
                 mode: writeMode,
                 boardSize: writeBoardSize,
-                percentMines: writePercentMines
+                numMines: writeNumMines,
+                result: writeResult,
+                revealedCells: writeRevealedCount
             });
             return fetch(`http://localhost:${port}/scores.json`, {
                 method: 'PUT',

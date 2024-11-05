@@ -14,7 +14,7 @@ function fetchScores() {
             console.log('Scores fetched:', scores);
             
             // Sort scores by performance in descending order
-            scores.sort((a, b) => calculatePerformance(b.time, b['boardSize'], b['percentMines']) - calculatePerformance(a.time, a['boardSize'], a['percentMines']));
+            scores.sort((a, b) => calculatePerformance(b.time, b['boardSize'], b['numMines']) - calculatePerformance(a.time, a['boardSize'], a['numMines']));
 
             // Set top scores 
             const topScoreTableBody = document.querySelector('#top-scores');
@@ -22,15 +22,18 @@ function fetchScores() {
             let topScoreCount = 0;
             scores.forEach(score => {
                 if (topScoreCount < 10) {
-                    const performance = calculatePerformance(score.time, score['boardSize'], score['percentMines']);
+                    const performance = calculatePerformance(score.time, score['boardSize'], score['numMines']);
                     if(performance > 2.5) {
+                        const percentMines = score['numMines'] / (score['boardSize'] ** 2);
+                        const percentCleared = score['revealedCells'] / (score['boardSize'] ** 2 - score['numMines']);
                         const scoreRow = document.createElement('tr');
                         scoreRow.innerHTML = `
                             <td>${score.date}</td>
                             <td>${score.time}</td>
                             <td>${score.mode}</td>
                             <td>${score['boardSize']}</td>
-                            <td class="percent-field">${Math.round(score['percentMines'] * 100)}</td>
+                            <td class="percent-field">${Math.round(percentMines * 100)}</td>
+                            <td class="percent-field">${Math.round(percentCleared * 100)}</td>
                             <td>${performance.toFixed(2)}</td>
                         `;
                         topScoreTableBody.appendChild(scoreRow);
@@ -46,14 +49,17 @@ function fetchScores() {
             const allScoreTableBody = document.querySelector('#all-scores');
             allScoreTableBody.innerHTML = ''; // Clear previous entries
             scores.forEach(score => {
-                const performance = calculatePerformance(score.time, score['boardSize'], score['percentMines']);
+                const percentMines = score['numMines'] / (score['boardSize'] ** 2);
+                const percentCleared = score['revealedCells'] / (score['boardSize'] ** 2 - score['numMines']);
+                const performance = calculatePerformance(score.time, score['boardSize'], score['numMines']);
                 const scoreRow = document.createElement('tr');
                 scoreRow.innerHTML = `
                     <td>${score.date}</td>
                     <td>${score.time}</td>
                     <td>${score.mode}</td>
                     <td>${score['boardSize']}</td>
-                    <td class="percent-field">${Math.round(score['percentMines'] * 100)}</td>
+                    <td class="percent-field">${Math.round(percentMines * 100)}</td>
+                    <td class="percent-field">${Math.round(percentCleared * 100)}</td>
                     <td>${performance.toFixed(2)}</td>
                 `;
                 allScoreTableBody.appendChild(scoreRow);
@@ -84,7 +90,8 @@ function clearScores() {
     }
 }
 
-function calculatePerformance(time, boardSize, percentMines) {
+function calculatePerformance(time, boardSize, numMines) {
+    const percentMines = numMines / (boardSize ** 2);
     const difficultyRatio = percentMines / (1 - percentMines);
     const adjustedNumMines = Math.round(boardSize ** 2 * difficultyRatio);
     const adjustedTime = Math.sqrt(time / difficultyRatio);
