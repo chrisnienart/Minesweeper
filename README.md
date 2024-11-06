@@ -12,4 +12,4 @@ In *Random mode*, choose a range for the board size, and a range for mine percen
 In *Custom mode*, choose the exact board size and the percentage of mines in the game.
 
 ## Scoring
-Choose whether to track scores or not. Games are ranked by *performance*, a metric calculated by the number of mines cleared and the time taken to complete the game.
+Choose whether to track scores for wins, losses, or not at all. Games are ranked by *performance*, a metric based on completion percentage, board size, percentage of mines, and the time taken to complete the game.

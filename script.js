@@ -1,9 +1,10 @@
 let timerInterval;
 let boardSize; // Define boardSize globally
 let numMines; // Define numMines globally
-let timeElapsed = 0; // Initialize timeElapsed globally
 let settings; // Define settings globally
+let timeElapsed = 0; // Initialize timeElapsed globally
 let revealedCount = 0; // Define revealedCount globally
+var gameResult = "in progress";
 
 const port = 3000;
 const boardElement = document.getElementById('board');
@@ -83,6 +84,7 @@ async function initializeBoard() {
     flagsPlaced = 0;
     timeElapsed = 0;
     revealedCount = 0; // Reset revealedCount
+    gameResult = "in progress"; // Reset gameResult
     clearInterval(timerInterval);
     updateFlagsCount();
     updateTimer();
@@ -170,19 +172,24 @@ function handleRightClick(event) {
 function revealCell(row, col) {
     if (board[row][col].isRevealed || board[row][col].isFlagged) return;
 
-    board[row][col].isRevealed = true;
-    revealedCount++; // Increment revealedCount
     const cell = boardElement.children[row * boardSize + col];
-    cell.classList.add('revealed');
 
     if (board[row][col].isMine) {
-        gameOver = true;
         cell.classList.add('mine');
         cell.textContent = '💣';
         revealAllMines();
+        gameResult = "lost";
+        gameOver = true;
         alert('Game Over! You hit a mine.');
         clearInterval(timerInterval);
+        if (settings.scoring === 'rated' && revealedCount > 0) {
+            writeScores();
+        }  
     } else {
+        board[row][col].isRevealed = true;
+        cell.classList.add('revealed');
+        revealedCount++; // Increment revealedCount
+        
         if (board[row][col].neighborMines > 0) {
             cell.textContent = board[row][col].neighborMines;
             cell.classList.add(`mine-${board[row][col].neighborMines}`); // P4e7c
@@ -229,12 +236,13 @@ function revealAllMines() {
 
 function checkWinCondition() {
     if (revealedCount === boardSize ** 2 - numMines && gameOver === false) {
+        gameResult = "won";
         gameOver = true;
         alert('Congratulations! You won!');
         clearInterval(timerInterval);
 
         // Call the writeScores function
-        if (settings.scoring === 'rated') {
+        if (settings.scoring === 'rated' || settings.score === 'win') {
             writeScores();
         }
     }
@@ -247,7 +255,7 @@ function writeScores() {
     const writeMode = settings.mode;
     const writeBoardSize = boardSize;
     const writeNumMines = numMines;
-    const writeResult = "won"; // TODO: Determine result
+    const writeResult = gameResult;
     const writeRevealedCount = revealedCount;
     
     // Append the new entry to scores.json
