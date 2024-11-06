@@ -111,6 +111,7 @@ async function initializeBoard() {
             minesPlaced++;
         }
     }
+    //console.log('Mine locations encoded: ', encodeMineLocations(mineLocations,boardSize));
     // Calculate neighbor mines
     for (let i = 0; i < boardSize; i++) {
         for (let j = 0; j < boardSize; j++) {
@@ -296,6 +297,40 @@ function startTimer() {
 
 function updateTimer() {
     timeElement.textContent = `Time: ${timeElapsed}`;
+}
+
+function encodeMineLocations(mineLocations, boardSize) {
+    // Create an array of '0's representing the board
+    const mineArray = new Array(boardSize ** 2).fill('0');
+    
+    // Mark mine locations with '1'
+    mineLocations.forEach(mine => {
+        const index = mine.row * boardSize + mine.col;
+        mineArray[index] = '1';
+    });
+    
+    let encodedString = `${boardSize},`;
+    let currentChar = mineArray[0];
+    let count = 1;
+
+    // Perform Run-Length Encoding, modified for binary strings
+    if(mineArray[0] === '1') {
+        encodedString += '0,';
+    }
+    for (let i = 1; i < mineArray.length; i++) {
+        if (mineArray[i] === currentChar) {
+            count++;
+        } else {
+            encodedString += `${count},`;
+            currentChar = mineArray[i];
+            count = 1;
+        }
+    }
+    
+    // Add the last run
+    encodedString += `${count}`;
+    
+    return encodedString;
 }
 
 // Button actions
