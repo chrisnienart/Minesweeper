@@ -13,40 +13,34 @@ function fetchScores() {
             const scores = data.scores;
             console.log('Scores fetched:', scores);
             
-            // Sort scores by performance in descending order
-            scores.sort((a, b) => calculatePerformance(b.time, b['boardSize'], b['numMines'], b['revealedCells']) - calculatePerformance(a.time, a['boardSize'], a['numMines'], a['revealedCells']));
-
-            // Set top scores 
+            // Set top scores
+            const topPerformanceCutoff = 2.5;
+            const topRankCutoff = 10;
+            const filteredScores = scores.filter(score => calculatePerformance(score.time, score['boardSize'], score['numMines'], score['revealedCells']) > topPerformanceCutoff);
+            const sortedScores = filteredScores.sort((a, b) => calculatePerformance(b.time, b['boardSize'], b['numMines'], b['revealedCells']) - calculatePerformance(a.time, a['boardSize'], a['numMines'], a['revealedCells']));
+            const topScores = sortedScores.slice(0, topRankCutoff); // Only keep the top scores
             const topScoreTableBody = document.querySelector('#top-scores');
             topScoreTableBody.innerHTML = ''; // Clear previous entries
-            let topScoreCount = 0;
-            scores.forEach(score => {
-                if (topScoreCount < 10) {
-                    const performance = calculatePerformance(score.time, score['boardSize'], score['numMines'], score['revealedCells']);
-                    if(performance > 2.5) {
-                        const percentMines = score['numMines'] / (score['boardSize'] ** 2);
-                        const percentCleared = score['revealedCells'] / (score['boardSize'] ** 2 - score['numMines']);
-                        const scoreRow = document.createElement('tr');
-                        scoreRow.innerHTML = `
-                            <td>${score.date}</td>
-                            <td>${score.result}</td>
-                            <td>${score.time}</td>
-                            <td>${score.mode}</td>
-                            <td>${score['boardSize']}</td>
-                            <td class="percent-field">${Math.round(percentMines * 100)}</td>
-                            <td class="percent-field">${Math.round(percentCleared * 100)}</td>
-                            <td>${performance.toFixed(2)}</td>
-                        `;
-                        topScoreTableBody.appendChild(scoreRow);
-                        topScoreCount++;
-                    }
-                }
+            topScores.forEach(score => {
+                const performance = calculatePerformance(score.time, score['boardSize'], score['numMines'], score['revealedCells']);
+                const percentMines = score['numMines'] / (score['boardSize'] ** 2);
+                const percentCleared = score['revealedCells'] / (score['boardSize'] ** 2 - score['numMines']);
+                const scoreRow = document.createElement('tr');
+                scoreRow.innerHTML = `
+                    <td>${score.date}</td>
+                    <td>${score.result}</td>
+                    <td>${score.time}</td>
+                    <td>${score.mode}</td>
+                    <td>${score['boardSize']}</td>
+                    <td class="percent-field">${Math.round(percentMines * 100)}</td>
+                    <td class="percent-field">${Math.round(percentCleared * 100)}</td>
+                    <td>${performance.toFixed(2)}</td>
+                `;
+                topScoreTableBody.appendChild(scoreRow);
             });
 
-            // Sort all scores by date in descending order
-            scores.sort((a, b) => new Date(b.date) - new Date(a.date));
-
             // Set all score records
+            scores.sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort all scores by date in descending order
             const allScoreTableBody = document.querySelector('#all-scores');
             allScoreTableBody.innerHTML = ''; // Clear previous entries
             scores.forEach(score => {
