@@ -13,6 +13,24 @@
         <button id="clear-scores">Clear Scores</button>
     </div>
     <div id="score-container">
+        <h2>Best Wins</h2>
+        <table id="score-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Result</th>
+                    <th>Time</th>
+                    <th>Mode</th>
+                    <th>Board Size</th>
+                    <th class="percent-field">Mine Percent</th>
+                    <th class="percent-field">Cleared Percent</th>
+                    <th>Performance</th>
+                </tr>
+            </thead>
+            <tbody id="best-winning-scores">
+                <!-- Rows of scores will be dynamically added here by scores.js -->
+            </tbody>
+        </table>
         <h2>Top Scores</h2>
         <table id="score-table">
             <thead>
@@ -31,7 +49,6 @@
                 <!-- Rows of scores will be dynamically added here by scores.js -->
             </tbody>
         </table>
-    </div>
         <h2>All Scores</h2>
         <table id="score-table">
             <thead>

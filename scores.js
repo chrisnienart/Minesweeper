@@ -13,9 +13,34 @@ function fetchScores() {
             const scores = data.scores;
             console.log('Scores fetched:', scores);
             
-            // Set top scores
             const topPerformanceCutoff = 2.5;
             const topRankCutoff = 10;
+
+            // Set best winning scores
+            const filteredWinningScores = scores.filter(score => calculatePerformance(score.time, score['boardSize'], score['numMines'], score['revealedCells']) > topPerformanceCutoff && score.result === 'won');
+            const sortedWinningScores = filteredWinningScores.sort((a, b) => calculatePerformance(b.time, b['boardSize'], b['numMines'], b['revealedCells']) - calculatePerformance(a.time, a['boardSize'], a['numMines'], a['revealedCells']));
+            const winningScores = sortedWinningScores.slice(0, topRankCutoff); // Only keep the top scores
+            const winningScoreTableBody = document.querySelector('#best-winning-scores');
+            winningScoreTableBody.innerHTML = ''; // Clear previous entries
+            winningScores.forEach(score => {
+                const performance = calculatePerformance(score.time, score['boardSize'], score['numMines'], score['revealedCells']);
+                const percentMines = score['numMines'] / (score['boardSize'] ** 2);
+                const percentCleared = score['revealedCells'] / (score['boardSize'] ** 2 - score['numMines']);
+                const scoreRow = document.createElement('tr');
+                scoreRow.innerHTML = `
+                    <td>${score.date}</td>
+                    <td>${score.result}</td>
+                    <td>${score.time}</td>
+                    <td>${score.mode}</td>
+                    <td>${score['boardSize']}</td>
+                    <td class="percent-field">${Math.round(percentMines * 100)}</td>
+                    <td class="percent-field">${Math.round(percentCleared * 100)}</td>
+                    <td>${performance.toFixed(2)}</td>
+                `;
+                winningScoreTableBody.appendChild(scoreRow);
+            });
+            
+            // Set top scores
             const filteredScores = scores.filter(score => calculatePerformance(score.time, score['boardSize'], score['numMines'], score['revealedCells']) > topPerformanceCutoff);
             const sortedScores = filteredScores.sort((a, b) => calculatePerformance(b.time, b['boardSize'], b['numMines'], b['revealedCells']) - calculatePerformance(a.time, a['boardSize'], a['numMines'], a['revealedCells']));
             const topScores = sortedScores.slice(0, topRankCutoff); // Only keep the top scores
