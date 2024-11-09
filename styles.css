@@ -78,6 +78,10 @@ body {
     color: #808080; /* Gray */
 }
 
+#game-info {
+    margin-top: 20px;
+}
+
 #controls {
     margin-top: 20px;
 }
@@ -88,5 +92,6 @@ button {
 }
 
 span {
-    margin-left: 20px;
+    margin-left: 10px;
+    margin-right: 10px;
 }
