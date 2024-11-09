@@ -11,6 +11,7 @@ const boardElement = document.getElementById('board');
 const newGameButton = document.getElementById('new-game');
 const optionsButton = document.getElementById('options');
 const scoresButton = document.getElementById('scores');
+const exitButton = document.getElementById('exit');
 const flagsElement = document.getElementById('flags');
 const timeElement = document.getElementById('time');
 
@@ -181,8 +182,16 @@ function revealCell(row, col) {
         revealAllMines();
         gameResult = "lost";
         gameOver = true;
-        alert('Game Over! You hit a mine.');
         clearInterval(timerInterval);
+        
+        // Delay the confirmation dialog to allow mines to be fully revealed
+        setTimeout(() => {
+            const playAgain = confirm('Game Over! You hit a mine.\n\nWould you like to start a new game?');
+            if (playAgain) {
+                initializeBoard();
+            }
+        }, 100);  // Short delay to ensure visual reveal of mines
+
         if (settings.scoring === 'rated' && revealedCount > 0) {
             writeScores();
         }  
@@ -239,7 +248,10 @@ function checkWinCondition() {
     if (revealedCount === boardSize ** 2 - numMines && gameOver === false) {
         gameResult = "won";
         gameOver = true;
-        alert('Congratulations! You won!');
+        const playAgain = confirm('Congratulations! You won!\n\nWould you like to start a new game?');
+        if (playAgain) {
+            initializeBoard();
+        }
         clearInterval(timerInterval);
 
         // Call the writeScores function
@@ -333,6 +345,17 @@ function encodeMineLocations(mineLocations, boardSize) {
     return encodedString;
 }
 
+function exitGame() {
+    const confirmExit = confirm('Are you sure you want to exit?');
+    if (confirmExit) {
+        // Instead of window.close(), use a more reliable method
+        window.location.href = 'about:blank';  // Redirects to a blank page
+        console.log('Exiting game...');
+    } else {
+        console.log('Exit cancelled.');
+    }
+}
+
 // Button actions
 // Start a new game
 newGameButton.addEventListener('click', initializeBoard);
@@ -346,6 +369,9 @@ optionsButton.addEventListener('click', () => {
 scoresButton.addEventListener('click', () => {
     window.open('scores.html', '_blank', 'width=600,height=400');
 });
+
+// Exit game
+exitButton.addEventListener('click', exitGame);
 
 // Begin game
 initializeBoard();
