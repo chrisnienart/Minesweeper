@@ -4,6 +4,7 @@ let numMines; // Define numMines globally
 let settings; // Define settings globally
 let timeElapsed = 0; // Initialize timeElapsed globally
 let revealedCount = 0; // Define revealedCount globally
+let clicks = 0;
 var gameResult = "in progress";
 
 const port = 3000;
@@ -85,6 +86,7 @@ async function initializeBoard() {
     flagsPlaced = 0;
     timeElapsed = 0;
     revealedCount = 0; // Reset revealedCount
+    clicks = 0; // Reset clicks
     gameResult = "in progress"; // Reset gameResult
     clearInterval(timerInterval);
     updateFlagsCount();
@@ -160,6 +162,7 @@ function handleCellClick(event) {
     if (gameOver) return;
     const row = parseInt(event.target.dataset.row);
     const col = parseInt(event.target.dataset.col);
+    clicks++;
     revealCell(row, col);
 }
 
@@ -175,6 +178,7 @@ function revealCell(row, col) {
     if (board[row][col].isRevealed || board[row][col].isFlagged) return;
 
     const cell = boardElement.children[row * boardSize + col];
+    const minClicks = 5;
 
     if (board[row][col].isMine) {
         cell.classList.add('mine');
@@ -192,7 +196,7 @@ function revealCell(row, col) {
             }
         }, 100);  // Short delay to ensure visual reveal of mines
 
-        if (settings.scoring === 'rated' && revealedCount > 0) {
+        if (settings.scoring === 'rated' && clicks > minClicks) {
             writeScores();
         }  
     } else {
