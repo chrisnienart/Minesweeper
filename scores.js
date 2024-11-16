@@ -118,7 +118,7 @@ function calculatePerformance(time, boardSize, numMines, revealedCells) {
     const adjustedNumMines = Math.round(boardSize ** 2 * difficultyRatio);
     const adjustedTime = Math.sqrt(time / difficultyRatio);
     if (time > 0) {
-        performance = percentCleared * adjustedNumMines / adjustedTime;
+        performance = percentCleared ** 2 * adjustedNumMines / adjustedTime;
     } else {
         performance = 0;
     }
