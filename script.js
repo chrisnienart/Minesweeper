@@ -114,7 +114,6 @@ async function initializeBoard() {
             minesPlaced++;
         }
     }
-    //console.log('Mine locations encoded: ', encodeMineLocations(mineLocations,boardSize));
     // Calculate neighbor mines
     for (let i = 0; i < boardSize; i++) {
         for (let j = 0; j < boardSize; j++) {
@@ -274,6 +273,7 @@ function writeScores() {
     const writeNumMines = numMines;
     const writeResult = gameResult;
     const writeRevealedCount = revealedCount;
+    const encodeStartingPosition = encodeStartingPosition(mineLocations, boardSize); // Get the encoded string
     
     // Append the new entry to scores.json
     fetch(`http://localhost:${port}/scores.json`)
@@ -287,7 +287,8 @@ function writeScores() {
                 boardSize: writeBoardSize,
                 numMines: writeNumMines,
                 result: writeResult,
-                revealedCells: writeRevealedCount
+                revealedCells: writeRevealedCount,
+                encodeStartingPosition: encodeStartingPosition
             });
             return fetch(`http://localhost:${port}/scores.json`, {
                 method: 'PUT',
@@ -315,7 +316,7 @@ function updateTimer() {
     timeElement.textContent = `Time: ${timeElapsed}`;
 }
 
-function encodeMineLocations(mineLocations, boardSize) {
+function encodeStartingPosition(mineLocations, boardSize) {
     // Create an array of '0's representing the board
     const mineArray = new Array(boardSize ** 2).fill('0');
     
