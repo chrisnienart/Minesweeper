@@ -6,6 +6,7 @@ let timeElapsed = 0; // Initialize timeElapsed globally
 let revealedCount = 0; // Define revealedCount globally
 let clicks = 0;
 var gameResult = "in progress";
+let moveList = []; // Pcab0
 
 const port = 3000;
 const boardElement = document.getElementById('board');
@@ -88,6 +89,7 @@ async function initializeBoard() {
     revealedCount = 0; // Reset revealedCount
     clicks = 0; // Reset clicks
     gameResult = "in progress"; // Reset gameResult
+    moveList = []; // Reset moveList
     clearInterval(timerInterval);
     updateFlagsCount();
     updateTimer();
@@ -202,20 +204,28 @@ function revealCell(row, col) {
         board[row][col].isRevealed = true;
         cell.classList.add('revealed');
         revealedCount++; // Increment revealedCount
+        moveList.push(['R', row, col]); // Paca1
         
         if (board[row][col].neighborMines > 0) {
             cell.textContent = board[row][col].neighborMines;
-            cell.classList.add(`mine-${board[row][col].neighborMines}`); // P4e7c
+            cell.classList.add(`mine-${board[row][col].neighborMines}`);
         } else {
+            let revealedCells = [];
             // Reveal neighboring cells for empty cells
             for (let i = -1; i <= 1; i++) {
                 for (let j = -1; j <= 1; j++) {
                     const newRow = row + i;
                     const newCol = col + j;
                     if (newRow >= 0 && newRow < boardSize && newCol >= 0 && newCol < boardSize) {
-                        revealCell(newRow, newCol);
+                        if (!board[newRow][newCol].isRevealed && !board[newRow][newCol].isFlagged) {
+                            revealedCells.push([newRow, newCol]);
+                            revealCell(newRow, newCol);
+                        }
                     }
                 }
+            }
+            if (revealedCells.length > 0) {
+                moveList.push(revealedCells.map(cell => ['R', cell[0], cell[1]])); // Pbb40
             }
         }
     }
@@ -236,6 +246,7 @@ function toggleFlag(row, col) {
         cell.textContent = '🚩';
         flagsPlaced++;
     }
+    moveList.push(['F', row, col]); // P242a
     updateFlagsCount();
 }
 
@@ -288,7 +299,8 @@ function writeScores() {
                 numMines: writeNumMines,
                 result: writeResult,
                 revealedCells: writeRevealedCount,
-                encodeStartingPosition: encodeStartingPosition
+                encodeStartingPosition: encodeStartingPosition,
+                moveList: moveList // P53f0
             });
             return fetch(`http://localhost:${port}/scores.json`, {
                 method: 'PUT',
