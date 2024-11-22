@@ -5,8 +5,11 @@ let settings; // Define settings globally
 let timeElapsed = 0; // Initialize timeElapsed globally
 let revealedCount = 0; // Define revealedCount globally
 let clicks = 0;
+let gameID; // Unique ID based on current timestamp
 var gameResult = "in progress";
-let moveList = []; // Pcab0
+let startingPosition = "";
+let moveNumber = 0;
+let moveList = {}; // Pcab0
 
 const port = 3000;
 const boardElement = document.getElementById('board');
@@ -77,8 +80,10 @@ function setPercentMines() {
 }
 
 async function initializeBoard() {
+    console.log('Initializing board...');
+    gameID = Date.now().toString();
     boardSize = await setBoardSize(); // Use global boardSize
-    const percentMines = await setPercentMines();
+    percentMines = await setPercentMines();
     numMines = Math.floor(percentMines * boardSize ** 2); // Use global numMines
 
     board = [];
@@ -89,7 +94,8 @@ async function initializeBoard() {
     revealedCount = 0; // Reset revealedCount
     clicks = 0; // Reset clicks
     gameResult = "in progress"; // Reset gameResult
-    moveList = []; // Reset moveList
+    moveNumber = 0; // Reset moveNumber
+    moveList = {}; // Reset moveList
     clearInterval(timerInterval);
     updateFlagsCount();
     updateTimer();
@@ -116,6 +122,9 @@ async function initializeBoard() {
             minesPlaced++;
         }
     }
+    // Encode starting position
+    startingPosition = encodeStartingPosition(mineLocations, boardSize);
+
     // Calculate neighbor mines
     for (let i = 0; i < boardSize; i++) {
         for (let j = 0; j < boardSize; j++) {
@@ -164,6 +173,7 @@ function handleCellClick(event) {
     const row = parseInt(event.target.dataset.row);
     const col = parseInt(event.target.dataset.col);
     clicks++;
+    moveNumber++;
     revealCell(row, col);
 }
 
@@ -172,11 +182,15 @@ function handleRightClick(event) {
     if (gameOver) return;
     const row = parseInt(event.target.dataset.row);
     const col = parseInt(event.target.dataset.col);
+    moveNumber++;
     toggleFlag(row, col);
 }
 
 function revealCell(row, col) {
-    if (board[row][col].isRevealed || board[row][col].isFlagged) return;
+    if (board[row][col].isRevealed || board[row][col].isFlagged) {
+        moveNumber--;
+        return;
+    }
 
     const cell = boardElement.children[row * boardSize + col];
     const minClicks = 5;
@@ -184,6 +198,11 @@ function revealCell(row, col) {
     if (board[row][col].isMine) {
         cell.classList.add('mine');
         cell.textContent = '💣';
+        moveType = 'M';
+        if (!moveList[moveNumber]) {
+            moveList[moveNumber] = [];
+        }
+        moveList[moveNumber].push({ moveType, row, col }); // Paca1
         revealAllMines();
         gameResult = "lost";
         gameOver = true;
@@ -199,18 +218,22 @@ function revealCell(row, col) {
 
         if (settings.scoring === 'rated' && clicks > minClicks) {
             writeScores();
+            writeGamePlay();
         }  
     } else {
         board[row][col].isRevealed = true;
         cell.classList.add('revealed');
         revealedCount++; // Increment revealedCount
-        moveList.push(['R', row, col]); // Paca1
+        moveType = 'R';
+        if (!moveList[moveNumber]) {
+            moveList[moveNumber] = [];
+        }
+        moveList[moveNumber].push({ moveType, row, col }); // Paca1
         
         if (board[row][col].neighborMines > 0) {
             cell.textContent = board[row][col].neighborMines;
             cell.classList.add(`mine-${board[row][col].neighborMines}`);
         } else {
-            let revealedCells = [];
             // Reveal neighboring cells for empty cells
             for (let i = -1; i <= 1; i++) {
                 for (let j = -1; j <= 1; j++) {
@@ -218,14 +241,10 @@ function revealCell(row, col) {
                     const newCol = col + j;
                     if (newRow >= 0 && newRow < boardSize && newCol >= 0 && newCol < boardSize) {
                         if (!board[newRow][newCol].isRevealed && !board[newRow][newCol].isFlagged) {
-                            revealedCells.push([newRow, newCol]);
                             revealCell(newRow, newCol);
                         }
                     }
                 }
-            }
-            if (revealedCells.length > 0) {
-                moveList.push(revealedCells.map(cell => ['R', cell[0], cell[1]])); // Pbb40
             }
         }
     }
@@ -246,7 +265,11 @@ function toggleFlag(row, col) {
         cell.textContent = '🚩';
         flagsPlaced++;
     }
-    moveList.push(['F', row, col]); // P242a
+    moveType = 'F';
+    if (!moveList[moveNumber]) {
+        moveList[moveNumber] = [];
+    }
+    moveList[moveNumber].push({ moveType, row, col }); // P242a
     updateFlagsCount();
 }
 
@@ -271,6 +294,7 @@ function checkWinCondition() {
         // Call the writeScores function
         if (settings.scoring === 'rated' || settings.score === 'win') {
             writeScores();
+            writeGamePlay();
         }
     }
 }
@@ -278,30 +302,23 @@ function checkWinCondition() {
 function writeScores() {
     // Get values when the game is over
     const date = new Date().toISOString().split('T')[0]; // Format date as "yyyy-mm-dd"
-    const writeTime = timeElapsed;
-    const writeMode = settings.mode;
-    const writeBoardSize = boardSize;
-    const writeNumMines = numMines;
-    const writeResult = gameResult;
-    const writeRevealedCount = revealedCount;
-    const encodeStartingPosition = encodeStartingPosition(mineLocations, boardSize); // Get the encoded string
-    
+    const newEntry = {
+        date: date,
+        time: timeElapsed,
+        mode: settings.mode,
+        boardSize: boardSize,
+        numMines: numMines,
+        result: gameResult,
+        revealedCells: revealedCount,
+        gameID: gameID
+    };
+
     // Append the new entry to scores.json
     fetch(`http://localhost:${port}/scores.json`)
         .then(response => response.json())
         .then(data => {
             console.log('Adding new score to file:', data); 
-            data.scores.push({
-                date: date,
-                time: writeTime,
-                mode: writeMode,
-                boardSize: writeBoardSize,
-                numMines: writeNumMines,
-                result: writeResult,
-                revealedCells: writeRevealedCount,
-                encodeStartingPosition: encodeStartingPosition,
-                moveList: moveList // P53f0
-            });
+            data.scores.push(newEntry);
             return fetch(`http://localhost:${port}/scores.json`, {
                 method: 'PUT',
                 headers: {
@@ -311,6 +328,30 @@ function writeScores() {
             });
         })
         .catch(error => console.error('Error updating scores:', error));
+}
+
+function writeGamePlay() {
+    const newEntry = {
+        gameID: gameID,
+        boardSize: boardSize,
+        mineLocations: mineLocations,
+        moveList: moveList
+    };
+
+    fetch(`http://localhost:${port}/games.json`)
+        .then(response => response.json())
+        .then(data => {
+            console.log('Adding new game record to file:', gameID); 
+            data.games.push(newEntry);
+            return fetch(`http://localhost:${port}/games.json`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+        })
+        .catch(error => console.error('Error updating games:', error));
 }
 
 function updateFlagsCount() {

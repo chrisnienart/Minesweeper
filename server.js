@@ -104,6 +104,22 @@ app.post('/clear-scores', (req, res) => {
     });
 });
 
+// Route to update games.json
+app.put('/games.json', (req, res) => {
+    const games = req.body;
+    const gamesPath = path.join(__dirname, 'games.json');
+
+    fs.writeFile(gamesPath, JSON.stringify(games, null, 2), (err) => {
+        if (err) {
+            console.error('Error updating games:', err);
+            res.status(500).send('Error updating games');
+        } else {
+            console.log('Games updated successfully');
+            res.status(200).send('Games updated successfully');
+        }
+    });
+});
+
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
