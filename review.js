@@ -1,3 +1,5 @@
+const boardElement = document.getElementById('board');
+
 function populateGameIDDropdown() {
     fetch('games.json')
         .then(response => response.json())
@@ -19,6 +21,7 @@ function setLastGameID() {
             const lastGame = data.games[data.games.length - 1];
             document.getElementById('gameIDDropdown').value = lastGame.gameID;
             updateTable(lastGame.gameID);
+            updateGridSize(lastGame.gameID); // Call updateGridSize with the last game ID
         });
 }
 
@@ -52,18 +55,49 @@ function updateTable(gameID) {
         });
 }
 
-// Update button
-// document.getElementById('updateButton').addEventListener('click', () => {
-//     const gameIDDropdown = document.getElementById('gameIDDropdown').value;
-//     updateTable(gameIDDropdown);
-// });
+function renderBoard() {
+    const gridSize = getComputedStyle(document.documentElement).getPropertyValue('--grid-size');
+    const boardSize = parseInt(gridSize, 10);
+    console.log('Rendering board with size:', boardSize);
+    console.log('Board element:', boardElement);
+    boardElement.innerHTML = '';
+    let cellCount = 0;
+    for (let i = 0; i < boardSize; i++) {
+        for (let j = 0; j < boardSize; j++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.dataset.row = i;
+            cell.dataset.col = j;
+            //cell.addEventListener('click', handleCellClick);
+            //cell.addEventListener('contextmenu', handleRightClick);
+            boardElement.appendChild(cell);
+            cellCount++;
+        }
+    }
+    console.log('Cells created:', cellCount);
+}
+
+function updateGridSize(gameID) {
+    fetch('games.json')
+        .then(response => response.json())
+        .then(data => {
+            const selectedGame = data.games.find(game => game.gameID === gameID);
+            if (selectedGame) {
+                const boardSize = selectedGame.boardSize;
+                document.documentElement.style.setProperty('--grid-size', boardSize);
+                renderBoard(); // Re-render the board with the new grid size
+            }
+        });
+}
 
 // Handle dropdown change event
 document.getElementById('gameIDDropdown').addEventListener('change', (event) => {
     const selectedGameID = event.target.value;
     updateTable(selectedGameID);
+    updateGridSize(selectedGameID);
 });
 
 // Set last game ID on page load
 populateGameIDDropdown();
 setLastGameID();
+renderBoard();

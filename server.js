@@ -5,7 +5,8 @@ const path = require('path');
 const app = express();
 const port = 3000;
 
-app.use(express.json());
+// Increase the payload size limit to 1mb
+app.use(express.json({ limit: '1mb' }));
 app.use(express.static(__dirname));
 
 // Specific OPTIONS handler for /save-settings
