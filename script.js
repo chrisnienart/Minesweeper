@@ -1,4 +1,6 @@
+// Minesweeper Game
 let timerInterval;
+let board = [];
 let boardSize; // Define boardSize globally
 let numMines; // Define numMines globally
 let settings; // Define settings globally
@@ -195,14 +197,19 @@ function revealCell(row, col) {
     const cell = boardElement.children[row * boardSize + col];
     const minClicks = 5;
 
+    // Initialize moveList entry for this move
+    if (!moveList[moveNumber]) {
+        moveList[moveNumber] = {
+            moveType: 'R',
+            cells: []
+        };
+    }
+
     if (board[row][col].isMine) {
         cell.classList.add('mine');
         cell.textContent = '💣';
-        moveType = 'M';
-        if (!moveList[moveNumber]) {
-            moveList[moveNumber] = [];
-        }
-        moveList[moveNumber].push({ moveType, row, col }); // Paca1
+        moveList[moveNumber].moveType = 'M';
+        moveList[moveNumber].cells.push({ row, col });
         revealAllMines();
         gameResult = "lost";
         gameOver = true;
@@ -224,11 +231,8 @@ function revealCell(row, col) {
         board[row][col].isRevealed = true;
         cell.classList.add('revealed');
         revealedCount++; // Increment revealedCount
-        moveType = 'R';
-        if (!moveList[moveNumber]) {
-            moveList[moveNumber] = [];
-        }
-        moveList[moveNumber].push({ moveType, row, col }); // Paca1
+        
+        moveList[moveNumber].cells.push({ row,  col });
         
         if (board[row][col].neighborMines > 0) {
             cell.textContent = board[row][col].neighborMines;
@@ -256,6 +260,15 @@ function toggleFlag(row, col) {
     if (board[row][col].isRevealed) return;
 
     const cell = boardElement.children[row * boardSize + col];
+    
+    // Initialize moveList entry for this move
+    if (!moveList[moveNumber]) {
+        moveList[moveNumber] = {
+            moveType: 'F',
+            cells: []
+        };
+    }
+
     if (board[row][col].isFlagged) {
         board[row][col].isFlagged = false;
         cell.textContent = '';
@@ -265,11 +278,8 @@ function toggleFlag(row, col) {
         cell.textContent = '🚩';
         flagsPlaced++;
     }
-    moveType = 'F';
-    if (!moveList[moveNumber]) {
-        moveList[moveNumber] = [];
-    }
-    moveList[moveNumber].push({ moveType, row, col }); // P242a
+    
+    moveList[moveNumber].cells.push({ row, col });
     updateFlagsCount();
 }
 

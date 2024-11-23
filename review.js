@@ -41,16 +41,20 @@ function updateTable(gameID) {
             const tableBody = document.querySelector('#moveTable tbody');
             tableBody.innerHTML = ''; // Clear existing rows
             for (const moveNumber in moveList) {
-                moveList[moveNumber].forEach(move => {
-                    const row = document.createElement('tr');
-                    const moveNumberCell = document.createElement('td');
-                    moveNumberCell.textContent = moveNumber;
-                    const moveValueCell = document.createElement('td');
-                    moveValueCell.textContent = `${move.moveType}, row: ${move.row}, col: ${move.col}`;
-                    row.appendChild(moveNumberCell);
-                    row.appendChild(moveValueCell);
-                    tableBody.appendChild(row);
-                });
+                const move = moveList[moveNumber];
+                const firstCellString = `{${move.cells[0].row},${move.cells[0].col}}`;
+                const cellString = move.cells.map(cell => `{${cell.row},${cell.col}}`).join(',');
+                const row = document.createElement('tr');
+                const moveNumberCell = document.createElement('td');
+                moveNumberCell.textContent = moveNumber;
+                const moveTypeCell = document.createElement('td');
+                moveTypeCell.textContent = `${move.moveType}${firstCellString}`;
+                const moveCells = document.createElement('td');
+                moveCells.textContent = `${cellString}`;
+                row.appendChild(moveNumberCell);
+                row.appendChild(moveTypeCell);
+                row.appendChild(moveCells);
+                tableBody.appendChild(row);
             }
         });
 }
@@ -76,6 +80,80 @@ function renderBoard() {
     }
     console.log('Cells created:', cellCount);
 }
+
+// Create empty board
+function createEmptyBoard() {
+    for (let i = 0; i < boardSize; i++) {
+        board[i] = [];
+        for (let j = 0; j < boardSize; j++) {
+            board[i][j] = {
+                isMine: false,
+                isRevealed: false,
+                isFlagged: false,
+                neighborMines: 0
+            };
+        }
+    }
+}
+
+function countNeighborMines(row, col) {
+    let count = 0;
+    for (let i = -1; i <= 1; i++) {
+        for (let j = -1; j <= 1; j++) {
+            const newRow = row + i;
+            const newCol = col + j;
+            if (newRow >= 0 && newRow < boardSize && newCol >= 0 && newCol < boardSize) {
+                if (board[newRow][newCol].isMine) {
+                    count++;
+                }
+            }
+        }
+    }
+    return count;
+}
+
+function revealCell(row, col) {
+    const cell = boardElement.children[row * boardSize + col];
+    if (board[row][col].isMine) {
+        cell.classList.add('mine');
+        cell.textContent = '💣';
+        revealAllMines();
+    } else {
+        board[row][col].isRevealed = true;
+        cell.classList.add('revealed');
+
+        if (board[row][col].neighborMines > 0) {
+            cell.textContent = board[row][col].neighborMines;
+            cell.classList.add(`mine-${board[row][col].neighborMines}`);
+        } else {
+            // Reveal neighboring cells for empty cells
+            for (let i = -1; i <= 1; i++) {
+                for (let j = -1; i <= 1; j++) {
+                    const newRow = row + i;
+                    const newCol = col + j;
+                    if (newRow >= 0 && newRow < boardSize && newCol >= 0 && newCol < boardSize) {
+                        if (!board[newRow][newCol].isRevealed && !board[newRow][newCol].isFlagged) {
+                            revealCell(newRow, newCol);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+function toggleFlag(row, col) {
+    const cell = boardElement.children[row * boardSize + col];
+    if (board[row][col].isFlagged) {
+        board[row][col].isFlagged = false;
+        cell.textContent = '';
+    } else {
+        board[row][col].isFlagged = true;
+        cell.textContent = '🚩';
+    }
+    updateFlagsCount();
+}
+
 
 function updateGridSize(gameID) {
     fetch('games.json')
