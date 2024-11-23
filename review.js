@@ -1,4 +1,10 @@
+//let timerInterval;
+let gameID;
+let board = [];
+let boardSize; // Define boardSize globally
+
 const boardElement = document.getElementById('board');
+const boardStates = {}; // Create an object to store all the board information associated with each move
 
 function populateGameIDDropdown() {
     fetch('games.json')
@@ -20,12 +26,22 @@ function setLastGameID() {
         .then(data => {
             const lastGame = data.games[data.games.length - 1];
             document.getElementById('gameIDDropdown').value = lastGame.gameID;
-            updateTable(lastGame.gameID);
+            updateMoveTable(lastGame.gameID);
             updateGridSize(lastGame.gameID); // Call updateGridSize with the last game ID
+
+            // // Populate boardStates for every move associated with the gameID selected
+            // const selectedGame = data.games.find(game => game.gameID === lastGame.gameID);
+            // if (selectedGame) {
+            //     const moveList = selectedGame.moveList;
+            //     boardSize = selectedGame.boardSize;
+            //     for (const moveNumber in moveList) {
+            //         createBoardForMove(lastGame.gameID, moveNumber);
+            //     }
+            // }
         });
 }
 
-function updateTable(gameID) {
+function updateMoveTable(gameID) {
     fetch('games.json')
         .then(response => response.json())
         .then(data => {
@@ -83,6 +99,7 @@ function renderBoard() {
 
 // Create empty board
 function createEmptyBoard() {
+    board = []; // Reset board to an empty array
     for (let i = 0; i < boardSize; i++) {
         board[i] = [];
         for (let j = 0; j < boardSize; j++) {
@@ -117,7 +134,7 @@ function revealCell(row, col) {
     if (board[row][col].isMine) {
         cell.classList.add('mine');
         cell.textContent = '💣';
-        revealAllMines();
+        //revealAllMines();
     } else {
         board[row][col].isRevealed = true;
         cell.classList.add('revealed');
@@ -154,7 +171,6 @@ function toggleFlag(row, col) {
     updateFlagsCount();
 }
 
-
 function updateGridSize(gameID) {
     fetch('games.json')
         .then(response => response.json())
@@ -171,11 +187,185 @@ function updateGridSize(gameID) {
 // Handle dropdown change event
 document.getElementById('gameIDDropdown').addEventListener('change', (event) => {
     const selectedGameID = event.target.value;
-    updateTable(selectedGameID);
+    updateMoveTable(selectedGameID);
     updateGridSize(selectedGameID);
 });
 
 // Set last game ID on page load
-populateGameIDDropdown();
-setLastGameID();
-renderBoard();
+    populateGameIDDropdown();
+    setLastGameID();
+    renderBoard();
+
+// Create board object for every move in the moveList
+function createBoardForMove(gameID, moveNumber) {
+    fetch('games.json')
+        .then(response => response.json())
+        .then(data => {
+            const selectedGame = data.games.find(game => game.gameID === gameID);
+            if (selectedGame) {
+                const moveList = selectedGame.moveList;
+                const mineLocations = selectedGame.mineLocations;
+                const move = moveList[moveNumber];
+
+                // Create empty board
+                createEmptyBoard();
+
+                // Update isMine attribute based on mineLocations
+                if (mineLocations && Array.isArray(mineLocations)) {
+                    mineLocations.forEach(mine => {
+                        if (mine && typeof mine.row !== 'undefined' && typeof mine.col !== 'undefined') {
+                            board[mine.row][mine.col].isMine = true;
+                        } else {
+                            console.error('Invalid mine location:', mine);
+                        }
+                    });
+                } else {
+                    console.error('Invalid or missing mineLocations:', mineLocations);
+                }
+
+                // Update board based on the move
+                move.cells.forEach(cell => {
+                    if (move.moveType === 'R') {
+                        revealCell(cell.row, cell.col);
+                    } else if (move.moveType === 'F') {
+                        toggleFlag(cell.row, cell.col);
+                    }
+                });
+
+                // Store the board state in the boardStates object
+                console.log('Storing board state for move:', moveNumber);
+                boardStates[moveNumber] = JSON.parse(JSON.stringify(board));
+
+                // Render the board
+                renderBoard();
+            }
+        });
+}
+
+// New function to update the board display based on the move number and boardStates object
+function updateBoardDisplay(moveNumber, boardStates) {
+    const boardState = boardStates[moveNumber];
+    if (!boardState) {
+        console.error('No board state found for move number:', moveNumber);
+        return;
+    }
+
+    boardElement.innerHTML = '';
+    const gridSize = getComputedStyle(document.documentElement).getPropertyValue('--grid-size');
+    const boardSize = parseInt(gridSize, 10);
+
+    for (let row = 0; row < boardSize; row++) {
+        for (let col = 0; col < boardSize; col++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.dataset.row = row;
+            cell.dataset.col = col;
+
+            const cellState = boardState[row][col];
+            if (cellState.isRevealed) {
+                cell.classList.add('revealed');
+                if (cellState.isMine) {
+                    cell.classList.add('mine');
+                    cell.textContent = '💣';
+                } else if (cellState.neighborMines > 0) {
+                    cell.textContent = cellState.neighborMines;
+                    cell.classList.add(`mine-${cellState.neighborMines}`);
+                }
+            } else if (cellState.isFlagged) {
+                cell.textContent = '🚩';
+            }
+
+            boardElement.appendChild(cell);
+        }
+    }
+}
+
+// Add event listeners to the buttons
+let currentMoveNumber = 0;
+const moveNumbers = Object.keys(boardStates).map(Number);
+const maxMoveNumber = Math.max(...moveNumbers, 0);
+
+document.getElementById('start').addEventListener('click', () => {
+    currentMoveNumber = 0;
+    updateBoardDisplay(currentMoveNumber, boardStates);
+});
+
+document.getElementById('prev').addEventListener('click', () => {
+    currentMoveNumber = Math.max(currentMoveNumber - 1, 0);
+    updateBoardDisplay(currentMoveNumber, boardStates);
+});
+
+document.getElementById('next').addEventListener('click', () => {
+    currentMoveNumber = Math.min(currentMoveNumber + 1, maxMoveNumber);
+    updateBoardDisplay(currentMoveNumber, boardStates);
+});
+
+document.getElementById('end').addEventListener('click', () => {
+    currentMoveNumber = maxMoveNumber;
+    updateBoardDisplay(currentMoveNumber, boardStates);
+});
+
+// Define move 0 for boardStates as an empty board with updated isMine properties
+function createInitialBoardState(gameID) {
+    fetch('games.json')
+        .then(response => response.json())
+        .then(data => {
+            const selectedGame = data.games.find(game => game.gameID === gameID);
+            
+            if (selectedGame) {
+                const mineLocations = selectedGame.mineLocations;
+                const boardSize = selectedGame.boardSize;
+
+                // Set the grid size
+                document.documentElement.style.setProperty('--grid-size', boardSize);
+
+                // Create empty board
+                board = [];
+                for (let i = 0; i < boardSize; i++) {
+                    board[i] = [];
+                    for (let j = 0; j < boardSize; j++) {
+                        board[i][j] = {
+                            isMine: false,
+                            isRevealed: false,
+                            isFlagged: false,
+                            neighborMines: 0
+                        };
+                    }
+                }
+
+                // Update isMine attribute based on mineLocations
+                if (mineLocations && Array.isArray(mineLocations)) {
+                    mineLocations.forEach(mine => {
+                        if (mine && typeof mine.row !== 'undefined' && typeof mine.col !== 'undefined') {
+                            board[mine.row][mine.col].isMine = true;
+                        } else {
+                            console.error('Invalid mine location:', mine);
+                        }
+                    });
+                } else {
+                    console.error('Invalid or missing mineLocations:', mineLocations);
+                }
+
+                // Store the initial board state in the boardStates object
+                boardStates[0] = JSON.parse(JSON.stringify(board));
+
+                // Render the initial board
+                renderBoard();
+            } else {
+                console.error('No game found with ID:', gameID);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching or processing game data:', error);
+        });
+}
+
+// Call createInitialBoardState with the last game ID on page load
+document.addEventListener('DOMContentLoaded', () => {
+    const gameIDDropdown = document.getElementById('gameIDDropdown');
+    if (gameIDDropdown && gameIDDropdown.value) {
+        createInitialBoardState(gameIDDropdown.value);
+    } else {
+        console.error('Game ID dropdown not found or no value selected');
+    }
+});
