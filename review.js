@@ -28,16 +28,6 @@ function setLastGameID() {
             document.getElementById('gameIDDropdown').value = lastGame.gameID;
             updateMoveTable(lastGame.gameID);
             updateGridSize(lastGame.gameID); // Call updateGridSize with the last game ID
-
-            // // Populate boardStates for every move associated with the gameID selected
-            // const selectedGame = data.games.find(game => game.gameID === lastGame.gameID);
-            // if (selectedGame) {
-            //     const moveList = selectedGame.moveList;
-            //     boardSize = selectedGame.boardSize;
-            //     for (const moveNumber in moveList) {
-            //         createBoardForMove(lastGame.gameID, moveNumber);
-            //     }
-            // }
         });
 }
 
@@ -63,15 +53,26 @@ function updateMoveTable(gameID) {
                 const row = document.createElement('tr');
                 const moveNumberCell = document.createElement('td');
                 moveNumberCell.textContent = moveNumber;
-                const moveTypeCell = document.createElement('td');
-                moveTypeCell.textContent = `${move.moveType}${firstCellString}`;
-                const moveCells = document.createElement('td');
-                moveCells.textContent = `${cellString}`;
+                const actionCell = document.createElement('td');
+                actionCell.textContent = `${move.moveType}${firstCellString}`;
+                const timeCell = document.createElement('td');
+                timeCell.textContent = `${move.moveTime}`;
+                const revealedCell = document.createElement('td');
+                if (move.moveType === 'R') {
+                    revealedCell.textContent = `${cellString}`;
+                }
                 row.appendChild(moveNumberCell);
-                row.appendChild(moveTypeCell);
-                row.appendChild(moveCells);
+                row.appendChild(actionCell);
+                row.appendChild(timeCell);
+                row.appendChild(revealedCell);
                 tableBody.appendChild(row);
+
+                // Populate boardStates for every move associated with the gameID selected
+                console.log('Populating boardStates for move:', moveNumber);
+                createBoardForMove(selectedGame, moveNumber);
             }
+            console.log('Move table updated successfully');
+            console.log('BoardStates:', boardStates);
         });
 }
 
@@ -98,7 +99,7 @@ function renderBoard() {
 }
 
 // Create empty board
-function createEmptyBoard() {
+function createEmptyBoard(boardSize) {
     board = []; // Reset board to an empty array
     for (let i = 0; i < boardSize; i++) {
         board[i] = [];
@@ -197,49 +198,50 @@ document.getElementById('gameIDDropdown').addEventListener('change', (event) => 
     renderBoard();
 
 // Create board object for every move in the moveList
-function createBoardForMove(gameID, moveNumber) {
-    fetch('games.json')
-        .then(response => response.json())
-        .then(data => {
-            const selectedGame = data.games.find(game => game.gameID === gameID);
-            if (selectedGame) {
-                const moveList = selectedGame.moveList;
-                const mineLocations = selectedGame.mineLocations;
-                const move = moveList[moveNumber];
+function createBoardForMove(game, moveNumber) {
+    if (moveNumber === "1") {
+        console.log('Creating boardState for move 1:', game);
+    }
+    
+    const moveList = game.moveList;
+    const mineLocations = game.mineLocations;
+    const move = game.moveList[moveNumber];
 
-                // Create empty board
-                createEmptyBoard();
+    // Create empty board
+    createEmptyBoard(boardSize);
 
-                // Update isMine attribute based on mineLocations
-                if (mineLocations && Array.isArray(mineLocations)) {
-                    mineLocations.forEach(mine => {
-                        if (mine && typeof mine.row !== 'undefined' && typeof mine.col !== 'undefined') {
-                            board[mine.row][mine.col].isMine = true;
-                        } else {
-                            console.error('Invalid mine location:', mine);
-                        }
-                    });
-                } else {
-                    console.error('Invalid or missing mineLocations:', mineLocations);
-                }
+    // Update isMine attribute based on mineLocations
+    // if (mineLocations && Array.isArray(mineLocations)) {
+    //     mineLocations.forEach(mine => {
+    //         if (mine && typeof mine.row !== 'undefined' && typeof mine.col !== 'undefined') {
+    //             board[mine.row][mine.col].isMine = true;
+    //         } else {
+    //             console.error('Invalid mine location:', mine);
+    //         }
+    //     });
+    // } else {
+    //     console.error('Invalid or missing mineLocations:', mineLocations);
+    // }
 
-                // Update board based on the move
-                move.cells.forEach(cell => {
-                    if (move.moveType === 'R') {
-                        revealCell(cell.row, cell.col);
-                    } else if (move.moveType === 'F') {
-                        toggleFlag(cell.row, cell.col);
-                    }
-                });
+    // Update board based on the move
+    // move.cells.forEach(cell => {
+    //     if (move.moveType === 'R') {
+    //         revealCell(cell.row, cell.col);
+    //     } else if (move.moveType === 'F') {
+    //         toggleFlag(cell.row, cell.col);
+    //     }
+    // });
 
-                // Store the board state in the boardStates object
-                console.log('Storing board state for move:', moveNumber);
-                boardStates[moveNumber] = JSON.parse(JSON.stringify(board));
+    // Store the board state in the boardStates object
+    console.log('Storing board state for move:', moveNumber);
+    boardStates[moveNumber] = JSON.parse(JSON.stringify(board));
 
-                // Render the board
-                renderBoard();
-            }
-        });
+    if (moveNumber === "1") {
+        console.log('boardState for move 1:', boardStates[1]);
+    }
+
+    // Render the board
+    //renderBoard();
 }
 
 // New function to update the board display based on the move number and boardStates object

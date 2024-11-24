@@ -201,6 +201,7 @@ function revealCell(row, col) {
     if (!moveList[moveNumber]) {
         moveList[moveNumber] = {
             moveType: 'R',
+            moveTime: timeElapsed,
             cells: []
         };
     }
@@ -265,6 +266,7 @@ function toggleFlag(row, col) {
     if (!moveList[moveNumber]) {
         moveList[moveNumber] = {
             moveType: 'F',
+            moveTime: timeElapsed,
             cells: []
         };
     }
