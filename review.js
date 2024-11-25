@@ -397,7 +397,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     //Update move Table
-    updateMoveTable();
+    updateMoveTable(gameID);
 });
 
 
