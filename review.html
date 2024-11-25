@@ -51,6 +51,15 @@
             </table>
         </div>
     </div>
+    <script>
+        // Read the gameID from the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const gameID = urlParams.get('gameID');
+
+        // Display the gameID in the header
+        const gameIDDropdown = document.getElementById('gameIDDropdown');
+        gameIDDropdown.innerHTML = `<option value="${gameID}">${gameID}</option>`;
+    </script>
     <script src="review.js"></script>
 </body>
 </html>

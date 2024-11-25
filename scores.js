@@ -28,7 +28,7 @@ function fetchScores() {
                 const percentCleared = score['revealedCells'] / (score['boardSize'] ** 2 - score['numMines']);
                 const scoreRow = document.createElement('tr');
                 scoreRow.innerHTML = `
-                    <td>${score.gameID}</td>
+                    <td class="game-id-link">${score.gameID}</td>
                     <td>${score.date}</td>
                     <td>${score.result}</td>
                     <td>${score.time}</td>
@@ -38,6 +38,9 @@ function fetchScores() {
                     <td class="percent-field">${Math.round(percentCleared * 100)}</td>
                     <td>${performance.toFixed(2)}</td>
                 `;
+                scoreRow.querySelector('.game-id-link').addEventListener('click', () => {
+                    window.location.href = `review.html?gameID=${score.gameID}`;
+                });
                 winningScoreTableBody.appendChild(scoreRow);
             });
             
@@ -53,7 +56,7 @@ function fetchScores() {
                 const percentCleared = score['revealedCells'] / (score['boardSize'] ** 2 - score['numMines']);
                 const scoreRow = document.createElement('tr');
                 scoreRow.innerHTML = `
-                    <td>${score.gameID}</td>
+                    <td class="game-id-link">${score.gameID}</td>
                     <td>${score.date}</td>
                     <td>${score.result}</td>
                     <td>${score.time}</td>
@@ -63,6 +66,9 @@ function fetchScores() {
                     <td class="percent-field">${Math.round(percentCleared * 100)}</td>
                     <td>${performance.toFixed(2)}</td>
                 `;
+                scoreRow.querySelector('.game-id-link').addEventListener('click', () => {
+                    window.location.href = `review.html?gameID=${score.gameID}`;
+                });
                 topScoreTableBody.appendChild(scoreRow);
             });
 
@@ -76,7 +82,7 @@ function fetchScores() {
                 const performance = calculatePerformance(score.time, score['boardSize'], score['numMines'],score['revealedCells']);
                 const scoreRow = document.createElement('tr');
                 scoreRow.innerHTML = `
-                    <td>${score.gameID}</td>
+                    <td class="game-id-link">${score.gameID}</td>
                     <td>${score.date}</td>
                     <td>${score.result}</td>
                     <td>${score.time}</td>
@@ -86,6 +92,9 @@ function fetchScores() {
                     <td class="percent-field">${Math.round(percentCleared * 100)}</td>
                     <td>${performance.toFixed(2)}</td>
                 `;
+                scoreRow.querySelector('.game-id-link').addEventListener('click', () => {
+                    window.location.href = `review.html?gameID=${score.gameID}`;
+                });
                 allScoreTableBody.appendChild(scoreRow);
             });
         })

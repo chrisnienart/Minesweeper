@@ -1,5 +1,4 @@
 //let timerInterval;
-let gameID;
 let board = [];
 let boardSize; // Define boardSize globally
 
@@ -11,12 +10,20 @@ function populateGameIDDropdown() {
         .then(response => response.json())
         .then(data => {
             const dropdown = document.getElementById('gameIDDropdown');
+            dropdown.innerHTML = ''; // Clear existing options
             data.games.sort((a, b) => b.gameID - a.gameID).forEach(game => {
                 const option = document.createElement('option');
                 option.value = game.gameID;
                 option.textContent = game.gameID;
                 dropdown.appendChild(option);
             });
+
+            // Set the dropdown to the gameID from URL if available
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlGameID = urlParams.get('gameID');
+            if (urlGameID) {
+                dropdown.value = urlGameID;
+            }
         });
 }
 
@@ -25,9 +32,21 @@ function setLastGameID() {
         .then(response => response.json())
         .then(data => {
             const lastGame = data.games[data.games.length - 1];
-            document.getElementById('gameIDDropdown').value = lastGame.gameID;
-            updateMoveTable(lastGame.gameID);
-            updateGridSize(lastGame.gameID); // Call updateGridSize with the last game ID
+            const dropdown = document.getElementById('gameIDDropdown');
+            
+            // Only set last game if no gameID is in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlGameID = urlParams.get('gameID');
+            
+            if (!urlGameID) {
+                dropdown.value = lastGame.gameID;
+                updateMoveTable(lastGame.gameID);
+                updateGridSize(lastGame.gameID);
+            } else {
+                console.log('GameID in URL', urlGameID);
+                updateMoveTable(urlGameID);
+                updateGridSize(urlGameID);
+            }
         });
 }
 
@@ -89,8 +108,6 @@ function renderBoard() {
             cell.className = 'cell';
             cell.dataset.row = i;
             cell.dataset.col = j;
-            //cell.addEventListener('click', handleCellClick);
-            //cell.addEventListener('contextmenu', handleRightClick);
             boardElement.appendChild(cell);
             cellCount++;
         }
@@ -190,12 +207,13 @@ document.getElementById('gameIDDropdown').addEventListener('change', (event) => 
     const selectedGameID = event.target.value;
     updateMoveTable(selectedGameID);
     updateGridSize(selectedGameID);
+    
+    // Update URL without reloading the page
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set('gameID', selectedGameID);
+    window.history.replaceState({}, '', `${window.location.pathname}?${urlParams}`);
 });
 
-// Set last game ID on page load
-    populateGameIDDropdown();
-    setLastGameID();
-    renderBoard();
 
 // Create board object for every move in the moveList
 function createBoardForMove(game, moveNumber) {
@@ -362,12 +380,24 @@ function createInitialBoardState(gameID) {
         });
 }
 
-// Call createInitialBoardState with the last game ID on page load
+// Initialize page on DOM content loaded
 document.addEventListener('DOMContentLoaded', () => {
-    const gameIDDropdown = document.getElementById('gameIDDropdown');
-    if (gameIDDropdown && gameIDDropdown.value) {
-        createInitialBoardState(gameIDDropdown.value);
+    // Populate dropdown first
+    populateGameIDDropdown();
+
+    // Get gameID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const gameID = urlParams.get('gameID');
+
+    // If gameID exists, use it; otherwise, set last game
+    if (gameID) {
+        createInitialBoardState(gameID);
     } else {
-        console.error('Game ID dropdown not found or no value selected');
+        setLastGameID();
     }
+
+    //Update move Table
+    updateMoveTable();
 });
+
+
