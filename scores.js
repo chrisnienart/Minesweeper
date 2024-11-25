@@ -28,6 +28,7 @@ function fetchScores() {
                 const percentCleared = score['revealedCells'] / (score['boardSize'] ** 2 - score['numMines']);
                 const scoreRow = document.createElement('tr');
                 scoreRow.innerHTML = `
+                    <td>${score.gameID}</td>
                     <td>${score.date}</td>
                     <td>${score.result}</td>
                     <td>${score.time}</td>
@@ -52,6 +53,7 @@ function fetchScores() {
                 const percentCleared = score['revealedCells'] / (score['boardSize'] ** 2 - score['numMines']);
                 const scoreRow = document.createElement('tr');
                 scoreRow.innerHTML = `
+                    <td>${score.gameID}</td>
                     <td>${score.date}</td>
                     <td>${score.result}</td>
                     <td>${score.time}</td>
@@ -74,6 +76,7 @@ function fetchScores() {
                 const performance = calculatePerformance(score.time, score['boardSize'], score['numMines'],score['revealedCells']);
                 const scoreRow = document.createElement('tr');
                 scoreRow.innerHTML = `
+                    <td>${score.gameID}</td>
                     <td>${score.date}</td>
                     <td>${score.result}</td>
                     <td>${score.time}</td>
