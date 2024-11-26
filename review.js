@@ -248,6 +248,26 @@ document.getElementById('gameIDDropdown').addEventListener('change', (event) => 
         });
 });
 
+//Return to home page
+const homeButton = document.getElementById('home');
+homeButton.addEventListener('click', () => window.location.href = 'index.html');
+
+// Close window
+const closeButton = document.getElementById('close');
+closeButton.addEventListener('click', () => window.close());
+
+// Load previous game
+const previousGameButton = document.getElementById('previous-game');
+//ADD CODE
+//Change dropdown value to previous item on the list
+//Call setGameData
+
+// Load next game
+const nextGameButton = document.getElementById('next-game');
+//ADD CODE
+//Change dropdown value to next item on the list
+//Call setGameData
+
 // Add event listeners to the buttons
 document.getElementById('start').addEventListener('click', () => {
     currentMoveNumber = 0;

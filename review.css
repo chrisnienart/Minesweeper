@@ -3,7 +3,18 @@
 }
 
 #header {
+    margin-left: 10px;
     margin-bottom: 20px;
+}
+
+#page-controls {
+    justify-content: left;
+    gap: 10px;
+}
+
+#game-controls {
+    justify-content: left;
+    gap: 10px;
 }
 
 body {
@@ -19,6 +30,7 @@ body {
 
 #game-container {
     text-align: center;
+    margin-left:10px;
 }
 
 #board {
@@ -39,7 +51,7 @@ body {
     margin-bottom: 20px;
 }
 
-#controls {
+#move-controls {
     display: flex;
     justify-content: center;
     gap: 10px;
