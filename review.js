@@ -56,7 +56,7 @@ function setGameData(gameID) {
             boardSize = selectedGame.boardSize;
             mineLocations = selectedGame.mineLocations;
             moveList = selectedGame.moveList;
-            maxMoveNumber = moveList ? Object.keys(moveList).length : 0;
+            maxMoveNumber = moveList ? Math.max(...Object.keys(moveList).map(Number)) : 0;
 
             // Initialize the board and move table
             currentMoveNumber = 0;
