@@ -72,7 +72,9 @@ th, td {
     text-align: left;
 }
 
-
+#moveTable .moveNumber {
+    color: blue;
+}
 
 .cell {
     width: 30px;

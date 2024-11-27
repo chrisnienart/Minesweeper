@@ -124,12 +124,17 @@ function updateMoveTable() {
         const cellString = move.cells ? move.cells.map(cell => `{${cell.row},${cell.col}}`).join(',') : '';
         
         const row = document.createElement('tr');
+     
         const moveNumberCell = document.createElement('td');
         moveNumberCell.textContent = moveNumber;
+        moveNumberCell.classList.add('moveNumber');
+        
         const actionCell = document.createElement('td');
         actionCell.textContent = `${move.moveType}${firstCellString}`;
+        
         const timeCell = document.createElement('td');
         timeCell.textContent = `${move.moveTime}`;
+        
         const revealedCell = document.createElement('td');
         if (move.moveType === 'R') {
             revealedCell.textContent = cellString;
@@ -191,11 +196,22 @@ function createBoardForMove(moveNumber) {
         } else if (move.moveType === 'F') {
             const cell = move.cells[0];
             currentBoard[cell.row][cell.col].isFlagged = !currentBoard[cell.row][cell.col].isFlagged;
+        } else if (move.moveType === 'M') {
+            mineLocations.forEach(cell =>{
+                currentBoard[cell.row][cell.col].isRevealed = true
+            });
         }
     }
     
     // Store the board state
     boardStates[moveNumber] = currentBoard;
+}
+
+// Function to update the board and move info based on the selected move
+function updateBoardAndMoveInfo(moveNumber) {
+    currentMoveNumber = moveNumber;
+    updateBoardDisplay(currentMoveNumber, boardStates);
+    updateMoveInfo(currentMoveNumber);
 }
 
 function updateBoardDisplay(moveNumber, boardStates) {
@@ -289,27 +305,31 @@ nextGameButton.addEventListener('click', () => {
 
 // Add event listeners to the buttons
 document.getElementById('start').addEventListener('click', () => {
-    currentMoveNumber = 0;
-    updateBoardDisplay(currentMoveNumber, boardStates);
-    updateMoveInfo(currentMoveNumber);
+    updateBoardAndMoveInfo(0);
+    // currentMoveNumber = 0;
+    // updateBoardDisplay(currentMoveNumber, boardStates);
+    // updateMoveInfo(currentMoveNumber);
 });
 
 document.getElementById('prev').addEventListener('click', () => {
-    currentMoveNumber = Math.max(currentMoveNumber - 1, 0);
-    updateBoardDisplay(currentMoveNumber, boardStates);
-    updateMoveInfo(currentMoveNumber);
+    updateBoardAndMoveInfo(Math.max(currentMoveNumber - 1, 0));
+    // currentMoveNumber = Math.max(currentMoveNumber - 1, 0);
+    // updateBoardDisplay(currentMoveNumber, boardStates);
+    // updateMoveInfo(currentMoveNumber);
 });
 
 document.getElementById('next').addEventListener('click', () => {
-    currentMoveNumber = Math.min(currentMoveNumber + 1, maxMoveNumber);
-    updateBoardDisplay(currentMoveNumber, boardStates);
-    updateMoveInfo(currentMoveNumber);
+    updateBoardAndMoveInfo(Math.min(currentMoveNumber + 1, maxMoveNumber));
+    // currentMoveNumber = Math.min(currentMoveNumber + 1, maxMoveNumber);
+    // updateBoardDisplay(currentMoveNumber, boardStates);
+    // updateMoveInfo(currentMoveNumber);
 });
 
 document.getElementById('end').addEventListener('click', () => {
-    currentMoveNumber = maxMoveNumber;
-    updateBoardDisplay(currentMoveNumber, boardStates);
-    updateMoveInfo(currentMoveNumber);
+    updateBoardAndMoveInfo(maxMoveNumber);
+    // currentMoveNumber = maxMoveNumber;
+    // updateBoardDisplay(currentMoveNumber, boardStates);
+    // updateMoveInfo(currentMoveNumber);
 });
 
 // Initialize page on DOM content loaded
@@ -327,5 +347,16 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(error => {
                 console.error('Error setting game data:', error);
             });
+    }
+});
+
+// Add event listener to moveTable for click events
+document.getElementById('moveTable').addEventListener('click', (event) => {
+    const target = event.target;
+    if (target.tagName === 'TD' && target.textContent !== '') {
+        const moveNumber = parseInt(target.textContent);
+        if (!isNaN(moveNumber)) {
+            updateBoardAndMoveInfo(moveNumber);
+        }
     }
 });
