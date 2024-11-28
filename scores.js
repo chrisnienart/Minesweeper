@@ -22,27 +22,7 @@ function fetchScores() {
             const winningScores = sortedWinningScores.slice(0, topRankCutoff); // Only keep the top scores
             const winningScoreTableBody = document.querySelector('#best-winning-scores');
             winningScoreTableBody.innerHTML = ''; // Clear previous entries
-            winningScores.forEach(score => {
-                const performance = calculatePerformance(score.time, score['boardSize'], score['numMines'], score['revealedCells']);
-                const percentMines = score['numMines'] / (score['boardSize'] ** 2);
-                const percentCleared = score['revealedCells'] / (score['boardSize'] ** 2 - score['numMines']);
-                const scoreRow = document.createElement('tr');
-                scoreRow.innerHTML = `
-                    <td class="game-id-link">${score.gameID}</td>
-                    <td>${score.date}</td>
-                    <td>${score.result}</td>
-                    <td>${score.time}</td>
-                    <td>${score.mode}</td>
-                    <td>${score['boardSize']}</td>
-                    <td class="percent-field">${Math.round(percentMines * 100)}</td>
-                    <td class="percent-field">${Math.round(percentCleared * 100)}</td>
-                    <td>${performance.toFixed(2)}</td>
-                `;
-                scoreRow.querySelector('.game-id-link').addEventListener('click', () => {
-                    window.location.href = `review.html?gameID=${score.gameID}`;
-                });
-                winningScoreTableBody.appendChild(scoreRow);
-            });
+            winningScores.forEach(score => createTableRow(score,winningScoreTableBody));
             
             // Set top scores
             const filteredScores = scores.filter(score => calculatePerformance(score.time, score['boardSize'], score['numMines'], score['revealedCells']) > topPerformanceCutoff);
@@ -50,53 +30,20 @@ function fetchScores() {
             const topScores = sortedScores.slice(0, topRankCutoff); // Only keep the top scores
             const topScoreTableBody = document.querySelector('#top-scores');
             topScoreTableBody.innerHTML = ''; // Clear previous entries
-            topScores.forEach(score => {
-                const performance = calculatePerformance(score.time, score['boardSize'], score['numMines'], score['revealedCells']);
-                const percentMines = score['numMines'] / (score['boardSize'] ** 2);
-                const percentCleared = score['revealedCells'] / (score['boardSize'] ** 2 - score['numMines']);
-                const scoreRow = document.createElement('tr');
-                scoreRow.innerHTML = `
-                    <td class="game-id-link">${score.gameID}</td>
-                    <td>${score.date}</td>
-                    <td>${score.result}</td>
-                    <td>${score.time}</td>
-                    <td>${score.mode}</td>
-                    <td>${score['boardSize']}</td>
-                    <td class="percent-field">${Math.round(percentMines * 100)}</td>
-                    <td class="percent-field">${Math.round(percentCleared * 100)}</td>
-                    <td>${performance.toFixed(2)}</td>
-                `;
-                scoreRow.querySelector('.game-id-link').addEventListener('click', () => {
-                    window.location.href = `review.html?gameID=${score.gameID}`;
-                });
-                topScoreTableBody.appendChild(scoreRow);
-            });
+            topScores.forEach(score => createTableRow(score,topScoreTableBody));
 
             // Set all score records
-            scores.sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort all scores by date in descending order
+            scores.sort((a, b) => {
+                // If gameID is present, use it for sorting
+                if (a.gameID && b.gameID) {
+                    return b.gameID - a.gameID;
+                }
+                // If gameID is missing, fall back to date sorting
+                return new Date(b.date) - new Date(a.date);
+            });
             const allScoreTableBody = document.querySelector('#all-scores');
             allScoreTableBody.innerHTML = ''; // Clear previous entries
-            scores.forEach(score => {
-                const percentMines = score['numMines'] / (score['boardSize'] ** 2);
-                const percentCleared = score['revealedCells'] / (score['boardSize'] ** 2 - score['numMines']);
-                const performance = calculatePerformance(score.time, score['boardSize'], score['numMines'],score['revealedCells']);
-                const scoreRow = document.createElement('tr');
-                scoreRow.innerHTML = `
-                    <td class="game-id-link">${score.gameID}</td>
-                    <td>${score.date}</td>
-                    <td>${score.result}</td>
-                    <td>${score.time}</td>
-                    <td>${score.mode}</td>
-                    <td>${score['boardSize']}</td>
-                    <td class="percent-field">${Math.round(percentMines * 100)}</td>
-                    <td class="percent-field">${Math.round(percentCleared * 100)}</td>
-                    <td>${performance.toFixed(2)}</td>
-                `;
-                scoreRow.querySelector('.game-id-link').addEventListener('click', () => {
-                    window.location.href = `review.html?gameID=${score.gameID}`;
-                });
-                allScoreTableBody.appendChild(scoreRow);
-            });
+            scores.forEach(score => createTableRow(score,allScoreTableBody));
         })
         .catch(error => console.error('Error fetching scores:', error));
 }
@@ -123,6 +70,33 @@ function clearScores() {
     }
 }
 
+function createTableRow(score,tableBody) {
+    const metrics = calculateMetrics(score);
+    const scoreRow = document.createElement('tr');
+    scoreRow.innerHTML = `
+        <td class="game-id-link">${score.gameID}</td>
+        <td>${score.date}</td>
+        <td>${score.result}</td>
+        <td>${score.time}</td>
+        <td>${score.mode}</td>
+        <td>${score['boardSize']}</td>
+        <td class="percent-field">${Math.round(metrics.percentMines * 100)}</td>
+        <td class="percent-field">${Math.round(metrics.percentCleared * 100)}</td>
+        <td>${metrics.performance.toFixed(2)}</td>
+    `;
+    scoreRow.querySelector('.game-id-link').addEventListener('click', () => {
+        window.location.href = `review.html?gameID=${score.gameID}`;
+    });
+    tableBody.appendChild(scoreRow);
+}
+
+function calculateMetrics(score) {
+    let metrics = {};
+    metrics.performance = calculatePerformance(score.time, score['boardSize'], score['numMines'], score['revealedCells']);
+    metrics.percentMines = score['numMines'] / (score['boardSize'] ** 2);
+    metrics.percentCleared = score['revealedCells'] / (score['boardSize'] ** 2 - score['numMines']);
+    return metrics;
+}
 function calculatePerformance(time, boardSize, numMines, revealedCells) {
     const percentMines = numMines / (boardSize ** 2);
     const percentCleared = revealedCells / (boardSize ** 2 - numMines);
