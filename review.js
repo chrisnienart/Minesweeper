@@ -12,6 +12,33 @@ const boardStates = {}; // Create an object to store all the board information a
 const moveElement = document.getElementById('move');
 const timeElement = document.getElementById('time');
 
+function updateMoveListDisplay() {
+    if (!moveList) return;
+    
+    const moveListContainer = document.getElementById('moveList');
+    moveListContainer.innerHTML = ''; // Clear existing moves
+    
+    Object.entries(moveList).forEach(([moveNumber, move]) => {
+        const moveDiv = document.createElement('div');
+        moveDiv.classList.add('move-item');
+        if (moveNumber == currentMoveNumber) {
+            moveDiv.classList.add('current-move');
+        }
+        
+        const moveText = document.createElement('span');
+        const firstCell = move.cells && move.cells[0] ? `(${move.cells[0].row},${move.cells[0].col})` : '';
+        moveText.textContent = `${moveNumber}. ${move.moveType}${firstCell}`;
+        
+        moveDiv.appendChild(moveText);
+        moveListContainer.appendChild(moveDiv);
+        
+        // Add click handler to jump to this move
+        moveDiv.addEventListener('click', () => {
+            updateBoardAndMoveInfo(parseInt(moveNumber));
+        });
+    });
+}
+
 function populateGameIDDropdown() {
     fetch('games.json')
         .then(response => response.json())
@@ -62,6 +89,7 @@ function setGameData(gameID) {
             currentMoveNumber = 0;
             createInitialBoardState();
             updateMoveTable();
+            updateMoveListDisplay();
             updateBoardDisplay(currentMoveNumber, boardStates);
             updateMoveInfo(currentMoveNumber);
 
@@ -212,6 +240,7 @@ function updateBoardAndMoveInfo(moveNumber) {
     currentMoveNumber = moveNumber;
     updateBoardDisplay(currentMoveNumber, boardStates);
     updateMoveInfo(currentMoveNumber);
+    updateMoveListDisplay();
 }
 
 function updateBoardDisplay(moveNumber, boardStates) {
@@ -265,11 +294,6 @@ document.getElementById('gameIDDropdown').addEventListener('change', (event) => 
         .then(() => {
             updateGridSize(selectedGameID);
             updatePageURL(selectedGameID);
-            
-            // Update URL without reloading the page
-            // const urlParams = new URLSearchParams(window.location.search);
-            // urlParams.set('gameID', selectedGameID);
-            // window.history.replaceState({}, '', `${window.location.pathname}?${urlParams}`);
         });
 });
 
@@ -306,30 +330,18 @@ nextGameButton.addEventListener('click', () => {
 // Add event listeners to the buttons
 document.getElementById('start').addEventListener('click', () => {
     updateBoardAndMoveInfo(0);
-    // currentMoveNumber = 0;
-    // updateBoardDisplay(currentMoveNumber, boardStates);
-    // updateMoveInfo(currentMoveNumber);
 });
 
 document.getElementById('prev').addEventListener('click', () => {
     updateBoardAndMoveInfo(Math.max(currentMoveNumber - 1, 0));
-    // currentMoveNumber = Math.max(currentMoveNumber - 1, 0);
-    // updateBoardDisplay(currentMoveNumber, boardStates);
-    // updateMoveInfo(currentMoveNumber);
 });
 
 document.getElementById('next').addEventListener('click', () => {
     updateBoardAndMoveInfo(Math.min(currentMoveNumber + 1, maxMoveNumber));
-    // currentMoveNumber = Math.min(currentMoveNumber + 1, maxMoveNumber);
-    // updateBoardDisplay(currentMoveNumber, boardStates);
-    // updateMoveInfo(currentMoveNumber);
 });
 
 document.getElementById('end').addEventListener('click', () => {
     updateBoardAndMoveInfo(maxMoveNumber);
-    // currentMoveNumber = maxMoveNumber;
-    // updateBoardDisplay(currentMoveNumber, boardStates);
-    // updateMoveInfo(currentMoveNumber);
 });
 
 // Initialize page on DOM content loaded
