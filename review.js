@@ -12,35 +12,8 @@ const boardStates = {}; // Create an object to store all the board information a
 const moveElement = document.getElementById('move');
 const timeElement = document.getElementById('time');
 
-function updateMoveListDisplay() {
-    if (!moveList) return;
-    
-    const moveListContainer = document.getElementById('moveList');
-    moveListContainer.innerHTML = ''; // Clear existing moves
-    
-    Object.entries(moveList).forEach(([moveNumber, move]) => {
-        const moveDiv = document.createElement('div');
-        moveDiv.classList.add('move-item');
-        if (moveNumber == currentMoveNumber) {
-            moveDiv.classList.add('current-move');
-        }
-        
-        const moveText = document.createElement('span');
-        const firstCell = move.cells && move.cells[0] ? `(${move.cells[0].row},${move.cells[0].col})` : '';
-        moveText.textContent = `${moveNumber}. ${move.moveType}${firstCell}`;
-        
-        moveDiv.appendChild(moveText);
-        moveListContainer.appendChild(moveDiv);
-        
-        // Add click handler to jump to this move
-        moveDiv.addEventListener('click', () => {
-            updateBoardAndMoveInfo(parseInt(moveNumber));
-        });
-    });
-}
-
 function populateGameIDDropdown() {
-    fetch('games.json')
+    return fetch('games.json')
         .then(response => response.json())
         .then(data => {
             const dropdown = document.getElementById('gameIDDropdown');
@@ -52,17 +25,21 @@ function populateGameIDDropdown() {
                 dropdown.appendChild(option);
             });
 
-            // Set the dropdown to the gameID from URL if available
+            // Set the dropdown to the gameID
             const urlParams = new URLSearchParams(window.location.search);
             const urlGameID = urlParams.get('gameID');
-            selectedGame = data.games.find(game => game.gameID === gameID);
+            selectedGame = data.games.find(game => game.gameID === urlGameID);
             if (urlGameID && selectedGame) {
                 dropdown.value = urlGameID;
             } else {
                 //use most recent game
-                dropdown.value = data.games[0].gameID;
-                updatePageURL(dropdown.value);
+                selectedGame = data.games[0];
+                dropdown.value = selectedGame.gameID;
             }
+            updateGridSize();
+            updatePageURL();
+            
+            return selectedGame; // Return selectedGame for chaining
         });
 }
 
@@ -75,6 +52,8 @@ function setGameData(gameID) {
                 selectedGame = data.games[data.games.length - 1];
                 console.warn('Game not found:', gameID);
                 console.warn('Fallback to most recent game');
+                updateGridSize();
+                updatePageURL();
             }
 
             console.log('Set game data:', selectedGame.gameID);
@@ -87,8 +66,7 @@ function setGameData(gameID) {
 
             // Initialize the board and move table
             currentMoveNumber = 0;
-            createInitialBoardState();
-            updateMoveTable();
+            createBoardStates();
             updateMoveListDisplay();
             updateBoardDisplay(currentMoveNumber, boardStates);
             updateMoveInfo(currentMoveNumber);
@@ -98,6 +76,46 @@ function setGameData(gameID) {
         .catch(error => {
             console.error('Error fetching or processing game data:', error);
         });
+}
+
+function createBoardStates() {
+    if (!moveList) return;
+
+    // Set value for initial board state
+    createInitialBoardState();
+
+    Object.entries(moveList).forEach(moveNumber => {
+        // Create board state for this move
+        createBoardForMove(parseInt(moveNumber));
+    });
+}
+
+// Create board object for every move in the moveList
+function createBoardForMove(moveNumber) {
+    // Start with the initial board state
+    let currentBoard = JSON.parse(JSON.stringify(boardStates[0]));
+    
+    // Apply all moves up to the current move number
+    for (let i = 1; i <= moveNumber; i++) {
+        const move = moveList[i];
+        if (!move) continue;
+        
+        if (move.moveType === 'R') {
+            move.cells.forEach(cell => {
+                currentBoard[cell.row][cell.col].isRevealed = true;
+            });
+        } else if (move.moveType === 'F') {
+            const cell = move.cells[0];
+            currentBoard[cell.row][cell.col].isFlagged = !currentBoard[cell.row][cell.col].isFlagged;
+        } else if (move.moveType === 'M') {
+            mineLocations.forEach(cell =>{
+                currentBoard[cell.row][cell.col].isRevealed = true
+            });
+        }
+    }
+    
+    // Store the board state
+    boardStates[moveNumber] = currentBoard;
 }
 
 // Define move 0 for boardStates
@@ -141,44 +159,6 @@ function countNeighborMines(row, col) {
     return count;
 }
 
-function updateMoveTable() {
-    if (!moveList) return;
-    
-    const tableBody = document.querySelector('#moveTable tbody');
-    tableBody.innerHTML = ''; // Clear existing rows
-    
-    Object.entries(moveList).forEach(([moveNumber, move]) => {
-        const firstCellString = move.cells && move.cells[0] ? `{${move.cells[0].row},${move.cells[0].col}}` : '';
-        const cellString = move.cells ? move.cells.map(cell => `{${cell.row},${cell.col}}`).join(',') : '';
-        
-        const row = document.createElement('tr');
-     
-        const moveNumberCell = document.createElement('td');
-        moveNumberCell.textContent = moveNumber;
-        moveNumberCell.classList.add('moveNumber');
-        
-        const actionCell = document.createElement('td');
-        actionCell.textContent = `${move.moveType}${firstCellString}`;
-        
-        const timeCell = document.createElement('td');
-        timeCell.textContent = `${move.moveTime}`;
-        
-        const revealedCell = document.createElement('td');
-        if (move.moveType === 'R') {
-            revealedCell.textContent = cellString;
-        }
-        
-        row.appendChild(moveNumberCell);
-        row.appendChild(actionCell);
-        row.appendChild(timeCell);
-        row.appendChild(revealedCell);
-        tableBody.appendChild(row);
-
-        // Create board state for this move
-        createBoardForMove(parseInt(moveNumber));
-    });
-}
-
 // Create empty board
 function createEmptyBoard() {
     board = []; // Reset board to an empty array
@@ -195,44 +175,16 @@ function createEmptyBoard() {
     }
 }
 
-function updateGridSize(gameID) {
+function updateGridSize() {
     if (selectedGame) {
         document.documentElement.style.setProperty('--grid-size', selectedGame.boardSize);
     }
 }
 
-function updatePageURL(gameID) {
+function updatePageURL() {
     const urlParams = new URLSearchParams(window.location.search);
-    urlParams.set('gameID', gameID);
+    urlParams.set('gameID', selectedGame.gameID);
     window.history.replaceState({}, '', `${window.location.pathname}?${urlParams}`);
-}
-
-// Create board object for every move in the moveList
-function createBoardForMove(moveNumber) {
-    // Start with the initial board state
-    let currentBoard = JSON.parse(JSON.stringify(boardStates[0]));
-    
-    // Apply all moves up to the current move number
-    for (let i = 1; i <= moveNumber; i++) {
-        const move = moveList[i];
-        if (!move) continue;
-        
-        if (move.moveType === 'R') {
-            move.cells.forEach(cell => {
-                currentBoard[cell.row][cell.col].isRevealed = true;
-            });
-        } else if (move.moveType === 'F') {
-            const cell = move.cells[0];
-            currentBoard[cell.row][cell.col].isFlagged = !currentBoard[cell.row][cell.col].isFlagged;
-        } else if (move.moveType === 'M') {
-            mineLocations.forEach(cell =>{
-                currentBoard[cell.row][cell.col].isRevealed = true
-            });
-        }
-    }
-    
-    // Store the board state
-    boardStates[moveNumber] = currentBoard;
 }
 
 // Function to update the board and move info based on the selected move
@@ -287,13 +239,40 @@ function updateMoveInfo(moveNumber) {
     }
 }
 
+function updateMoveListDisplay() {
+    if (!moveList) return;
+    
+    const moveListContainer = document.getElementById('moveList');
+    moveListContainer.innerHTML = ''; // Clear existing moves
+    
+    Object.entries(moveList).forEach(([moveNumber, move]) => {
+        const moveDiv = document.createElement('div');
+        moveDiv.classList.add('move-item');
+        if (moveNumber == currentMoveNumber) {
+            moveDiv.classList.add('current-move');
+        }
+        
+        const moveText = document.createElement('span');
+        const firstCell = move.cells && move.cells[0] ? `(${move.cells[0].row},${move.cells[0].col})` : '';
+        moveText.textContent = `${moveNumber}. ${move.moveType}${firstCell}`;
+        
+        moveDiv.appendChild(moveText);
+        moveListContainer.appendChild(moveDiv);
+        
+        // Add click handler to jump to this move
+        moveDiv.addEventListener('click', () => {
+            updateBoardAndMoveInfo(parseInt(moveNumber));
+        });
+    });
+}
+
 // Handle dropdown change event
 document.getElementById('gameIDDropdown').addEventListener('change', (event) => {
     const selectedGameID = event.target.value;
     setGameData(selectedGameID)
         .then(() => {
-            updateGridSize(selectedGameID);
-            updatePageURL(selectedGameID);
+            updateGridSize();
+            updatePageURL();
         });
 });
 
@@ -346,29 +325,16 @@ document.getElementById('end').addEventListener('click', () => {
 
 // Initialize page on DOM content loaded
 document.addEventListener('DOMContentLoaded', () => {
-    // Populate dropdown first
-    populateGameIDDropdown();
-
-    // Get gameID from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlGameID = urlParams.get('gameID');
-
-    // Use setGameData to fetch and set the selected game
-    if (urlGameID) {
-        setGameData(urlGameID)
-            .catch(error => {
-                console.error('Error setting game data:', error);
-            });
-    }
-});
-
-// Add event listener to moveTable for click events
-document.getElementById('moveTable').addEventListener('click', (event) => {
-    const target = event.target;
-    if (target.tagName === 'TD' && target.textContent !== '') {
-        const moveNumber = parseInt(target.textContent);
-        if (!isNaN(moveNumber)) {
-            updateBoardAndMoveInfo(moveNumber);
-        }
-    }
+    // Populate dropdown first, then set game data
+    populateGameIDDropdown()
+        .then(game => {
+            if (game) {
+                return setGameData(game.gameID);
+            } else {
+                console.error('No game data available');
+            }
+        })
+        .catch(error => {
+            console.error('Error initializing game:', error);
+        });
 });
