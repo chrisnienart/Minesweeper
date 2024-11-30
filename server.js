@@ -5,7 +5,8 @@ const path = require('path');
 const app = express();
 const port = 3000;
 
-app.use(express.json());
+// Increase the payload size limit to 1mb
+app.use(express.json({ limit: '1mb' }));
 app.use(express.static(__dirname));
 
 // Specific OPTIONS handler for /save-settings
@@ -100,6 +101,22 @@ app.post('/clear-scores', (req, res) => {
         } else {
             console.log('Scores cleared successfully');
             res.status(200).send('Scores cleared successfully');
+        }
+    });
+});
+
+// Route to update games.json
+app.put('/games.json', (req, res) => {
+    const games = req.body;
+    const gamesPath = path.join(__dirname, 'games.json');
+
+    fs.writeFile(gamesPath, JSON.stringify(games, null, 2), (err) => {
+        if (err) {
+            console.error('Error updating games:', err);
+            res.status(500).send('Error updating games');
+        } else {
+            console.log('Games updated successfully');
+            res.status(200).send('Games updated successfully');
         }
     });
 });
