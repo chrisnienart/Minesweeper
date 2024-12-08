@@ -13,3 +13,8 @@ In *Custom mode*, choose the exact board size and the percentage of mines in the
 
 ## Scoring
 Choose whether to track scores for wins, losses, or not at all. Games are ranked by *performance*, a metric based on completion percentage, board size, percentage of mines, and the time taken to complete the game.
+
+## Game Review
+Games can be replayed on a game board in a separate window. Review games by picking positions from the move list or cycle through positions with the *next* and *previous* buttons. 
+
+Open game review by clicking the gameID on the *scores* page or by opening http://localhost:3000/review.html.
