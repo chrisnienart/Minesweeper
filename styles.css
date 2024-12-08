@@ -38,12 +38,24 @@ body {
     cursor: pointer;
 }
 
+.cell.mine {
+    background-color: #ff0000;
+}
+
+.cell.mine.last {
+    background-color: #aa0000;
+}
+
 .cell.revealed {
     background-color: #e0e0e0;
 }
 
-.cell.mine {
-    background-color: #ff0000;
+.cell.revealed.win {
+    background-color: #c7ddc4;
+}
+
+.cell.revealed.win.last {
+    background-color: #b1ddab;
 }
 
 .cell.revealed.mine-1 {

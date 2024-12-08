@@ -95,23 +95,71 @@ function createBoardForMove(moveNumber) {
     // Start with the initial board state
     let currentBoard = JSON.parse(JSON.stringify(boardStates[0]));
     
+    const isLastMove = moveNumber === maxMoveNumber;
+    const isWin = moveList[moveNumber].moveType === 'R'
+
     // Apply all moves up to the current move number
     for (let i = 1; i <= moveNumber; i++) {
         const move = moveList[i];
         if (!move) continue;
         
         if (move.moveType === 'R') {
+            // For reveal moves
             move.cells.forEach(cell => {
                 currentBoard[cell.row][cell.col].isRevealed = true;
             });
+
+            if (isLastMove && isWin) {
+                // First mark all revealed cells as win cells
+                for (let row = 0; row < boardSize; row++) {
+                    for (let col = 0; col < boardSize; col++) {
+                        if (currentBoard[row][col].isRevealed) {
+                            currentBoard[row][col].isWin = true;
+                        }
+                    }
+                }
+
+            }
         } else if (move.moveType === 'F') {
             const cell = move.cells[0];
             currentBoard[cell.row][cell.col].isFlagged = !currentBoard[cell.row][cell.col].isFlagged;
         } else if (move.moveType === 'M') {
-            mineLocations.forEach(cell =>{
-                currentBoard[cell.row][cell.col].isRevealed = true
+            // For mine hits (losing moves)
+            const clickedCell = move.cells[0];
+            
+            // Check for incorrectly placed flags
+            for (let row = 0; row < boardSize; row++) {
+                for (let col = 0; col < boardSize; col++) {
+                    if (currentBoard[row][col].isFlagged) {
+                        // Check if this flagged cell is actually a mine
+                        const isMineLocation = mineLocations.some(mine => 
+                            mine.row === row && mine.col === col
+                        );
+                        if (!isMineLocation) {
+                            currentBoard[row][col].isIncorrectFlag = true;
+                        }
+                    }
+                }
+            }
+            
+            // Reveal unflagged mines
+            mineLocations.forEach(cell => {
+                if (!currentBoard[cell.row][cell.col].isFlagged) {
+                    currentBoard[cell.row][cell.col].isRevealed = true;
+                    currentBoard[cell.row][cell.col].isMine = true;
+                    // Mark the clicked mine as the last one
+                    if (cell.row === clickedCell.row && cell.col === clickedCell.col) {
+                        currentBoard[cell.row][cell.col].isLastMine = true;
+                    }
+                }
             });
         }
+    }
+
+    // Assign last win cell
+    if (isLastMove && isWin) {
+        const winCell = moveList[moveNumber].cells[0];
+        currentBoard[winCell.row][winCell.col].isLastWinCell = true;
     }
     
     // Store the board state
@@ -169,6 +217,8 @@ function createEmptyBoard() {
                 isMine: false,
                 isRevealed: false,
                 isFlagged: false,
+                isWin: false,
+                isIncorrectFlag: false,
                 neighborMines: 0
             };
         }
@@ -214,13 +264,29 @@ function updateBoardDisplay(moveNumber, boardStates) {
             const cellState = boardState[row][col];
             if (cellState.isRevealed) {
                 cell.classList.add('revealed');
+                
                 if (cellState.isMine) {
+                    cell.classList.remove('revealed');
                     cell.classList.add('mine');
+                    if (cellState.isLastMine) {
+                        cell.classList.add('last');
+                    }
                     cell.textContent = '💣';
+                } else if (cellState.isWin) {
+                    cell.classList.add('win');
+                    if (cellState.isLastWinCell) {
+                        cell.classList.add('last');
+                    }
+                    if (cellState.neighborMines > 0) {
+                        cell.textContent = cellState.neighborMines;
+                        cell.classList.add(`mine-${cellState.neighborMines}`);
+                    }
                 } else if (cellState.neighborMines > 0) {
                     cell.textContent = cellState.neighborMines;
                     cell.classList.add(`mine-${cellState.neighborMines}`);
                 }
+            } else if (cellState.isIncorrectFlag) {
+                cell.textContent = '❌';
             } else if (cellState.isFlagged) {
                 cell.textContent = '🚩';
             }

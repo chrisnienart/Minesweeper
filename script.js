@@ -12,6 +12,8 @@ var gameResult = "in progress";
 let startingPosition = "";
 let moveNumber = 0;
 let moveList = {}; // Pcab0
+let lastClickedRow = -1;
+let lastClickedCol = -1;
 
 const port = 3000;
 const boardElement = document.getElementById('board');
@@ -206,12 +208,16 @@ function revealCell(row, col) {
         };
     }
 
+    lastClickedRow = row;
+    lastClickedCol = col;
+
     if (board[row][col].isMine) {
-        cell.classList.add('mine');
+        cell.classList.add('mine', 'last');
         cell.textContent = '💣';
         moveList[moveNumber].moveType = 'M';
         moveList[moveNumber].cells.push({ row, col });
         revealAllMines();
+        checkFlags();
         gameResult = "lost";
         gameOver = true;
         clearInterval(timerInterval);
@@ -288,8 +294,23 @@ function toggleFlag(row, col) {
 function revealAllMines() {
     for (const { row, col } of mineLocations) {
         const cell = boardElement.children[row * boardSize + col];
-        cell.classList.add('revealed', 'mine');
-        cell.textContent = '💣';
+        if (!board[row][col].isFlagged && !cell.classList.contains('last')) {
+            cell.classList.add('mine');
+            cell.textContent = '💣';
+        }
+    }
+}
+
+function checkFlags() {
+    for (let row = 0; row < boardSize; row++) {
+        for (let col = 0; col < boardSize; col++) {
+            const cell = boardElement.children[row * boardSize + col];
+            if (!board[row][col].isMine && board[row][col].isFlagged) {
+                cell.classList.remove('revealed');
+                cell.classList.remove('flagged');
+                cell.textContent = '❌';
+            }
+        }
     }
 }
 
@@ -297,11 +318,29 @@ function checkWinCondition() {
     if (revealedCount === boardSize ** 2 - numMines && gameOver === false) {
         gameResult = "won";
         gameOver = true;
-        const playAgain = confirm('Congratulations! You won!\n\nWould you like to start a new game?');
-        if (playAgain) {
-            initializeBoard();
+
+        // Add win classes to all revealed cells
+        for (let row = 0; row < boardSize; row++) {
+            for (let col = 0; col < boardSize; col++) {
+                const cell = boardElement.children[row * boardSize + col];
+                if (board[row][col].isRevealed) {
+                    cell.classList.add('win');
+                    // Add last class to the last clicked cell
+                    if (row === lastClickedRow && col === lastClickedCol) {
+                        cell.classList.add('last');
+                    }
+                }
+            }
         }
-        clearInterval(timerInterval);
+
+        // Delay the confirmation dialog to allow revealed cells to be highlighted
+        setTimeout(() => {
+            const playAgain = confirm('Congratulations! You won!\n\nWould you like to start a new game?');
+            if (playAgain) {
+                initializeBoard();
+            }
+            clearInterval(timerInterval);
+        }, 100);  // Short delay to ensure visual revealed cells
 
         // Call the writeScores function
         if (settings.scoring === 'rated' || settings.score === 'win') {
