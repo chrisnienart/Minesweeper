@@ -5,3 +5,6 @@ scores.json
 settings.json
 games.json
 games.json.example
+
+.aider*
+.env
