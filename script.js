@@ -176,9 +176,13 @@ function handleCellClick(event) {
     if (gameOver) return;
     const row = parseInt(event.target.dataset.row);
     const col = parseInt(event.target.dataset.col);
-    clicks++;
-    moveNumber++;
-    revealCell(row, col);
+    const revealed = board[row][col].isRevealed;
+    const flagged = board[row][col].isFlagged;
+    if (revealed === false && flagged === false) {
+        clicks++;
+        moveNumber++;
+        revealCell(row, col);    
+    }
 }
 
 function handleRightClick(event) {
@@ -186,15 +190,18 @@ function handleRightClick(event) {
     if (gameOver) return;
     const row = parseInt(event.target.dataset.row);
     const col = parseInt(event.target.dataset.col);
-    moveNumber++;
-    toggleFlag(row, col);
+    const revealed = board[row][col].isRevealed;
+    if (revealed === false) {
+        moveNumber++;
+        toggleFlag(row, col);
+    }
 }
 
 function revealCell(row, col) {
-    if (board[row][col].isRevealed || board[row][col].isFlagged) {
-        moveNumber--;
-        return;
-    }
+    // if (board[row][col].isRevealed || board[row][col].isFlagged) {
+    //     moveNumber--;
+    //     return;
+    // }
 
     const cell = boardElement.children[row * boardSize + col];
     const minClicks = 5;
@@ -264,7 +271,7 @@ function revealCell(row, col) {
 }
 
 function toggleFlag(row, col) {
-    if (board[row][col].isRevealed) return;
+    // if (board[row][col].isRevealed) return;
 
     const cell = boardElement.children[row * boardSize + col];
     
