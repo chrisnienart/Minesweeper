@@ -198,10 +198,6 @@ function handleRightClick(event) {
 }
 
 function revealCell(row, col) {
-    // if (board[row][col].isRevealed || board[row][col].isFlagged) {
-    //     moveNumber--;
-    //     return;
-    // }
 
     const cell = boardElement.children[row * boardSize + col];
     const minClicks = 5;
@@ -271,7 +267,6 @@ function revealCell(row, col) {
 }
 
 function toggleFlag(row, col) {
-    // if (board[row][col].isRevealed) return;
 
     const cell = boardElement.children[row * boardSize + col];
     
