@@ -82,6 +82,7 @@ function createTableRow(score,tableBody) {
         <td>${score['boardSize']}</td>
         <td class="percent-field">${Math.round(metrics.percentMines * 100)}</td>
         <td class="percent-field">${Math.round(metrics.percentCleared * 100)}</td>
+        <td>${metrics.pace.toFixed(2)}</td>
         <td>${metrics.performance.toFixed(2)}</td>
     `;
     scoreRow.querySelector('.game-id-link').addEventListener('click', () => {
