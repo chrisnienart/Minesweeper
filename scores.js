@@ -92,7 +92,9 @@ function createTableRow(score,tableBody) {
 
 function calculateMetrics(score) {
     let metrics = {};
-    metrics.performance = calculatePerformance(score.time, score['boardSize'], score['numMines'], score['revealedCells']);
+    const results = calculatePerformance(score.time, score['boardSize'], score['numMines'], score['revealedCells']);
+    metrics.performance = results.performance;
+    metrics.pace = results.pace;
     metrics.percentMines = score['numMines'] / (score['boardSize'] ** 2);
     metrics.percentCleared = score['revealedCells'] / (score['boardSize'] ** 2 - score['numMines']);
     return metrics;
@@ -103,12 +105,16 @@ function calculatePerformance(time, boardSize, numMines, revealedCells) {
     const difficultyRatio = percentMines / (1 - percentMines);
     const adjustedNumMines = Math.round(boardSize ** 2 * difficultyRatio);
     const adjustedTime = Math.sqrt(time / difficultyRatio);
+    
+    let pace = 0;
+    let performance = 0;
+    
     if (time > 0) {
-        performance = percentCleared ** 2 * adjustedNumMines / adjustedTime;
-    } else {
-        performance = 0;
+        pace = adjustedNumMines / adjustedTime;
+        performance = percentCleared ** 2 * pace;
     }
-    return performance;
+    
+    return {performance, pace};
 }
 
 // Close window
