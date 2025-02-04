@@ -17,16 +17,30 @@ function fetchScores() {
             const topRankCutoff = 10;
 
             // Set best winning scores
-            const filteredWinningScores = scores.filter(score => calculatePerformance(score.time, score['boardSize'], score['numMines'], score['revealedCells']) > topPerformanceCutoff && score.result === 'won');
-            const sortedWinningScores = filteredWinningScores.sort((a, b) => calculatePerformance(b.time, b['boardSize'], b['numMines'], b['revealedCells']) - calculatePerformance(a.time, a['boardSize'], a['numMines'], a['revealedCells']));
+            const filteredWinningScores = scores.filter(score => {
+                const {performance} = calculatePerformance(score.time, score['boardSize'], score['numMines'], score['revealedCells']);
+                return performance > topPerformanceCutoff && score.result === 'won';
+            });
+            const sortedWinningScores = filteredWinningScores.sort((a, b) => {
+                const {performance: aPerf} = calculatePerformance(a.time, a['boardSize'], a['numMines'], a['revealedCells']);
+                const {performance: bPerf} = calculatePerformance(b.time, b['boardSize'], b['numMines'], b['revealedCells']);
+                return bPerf - aPerf;
+            });
             const winningScores = sortedWinningScores.slice(0, topRankCutoff); // Only keep the top scores
             const winningScoreTableBody = document.querySelector('#best-winning-scores');
             winningScoreTableBody.innerHTML = ''; // Clear previous entries
             winningScores.forEach(score => createTableRow(score,winningScoreTableBody));
             
             // Set top scores
-            const filteredScores = scores.filter(score => calculatePerformance(score.time, score['boardSize'], score['numMines'], score['revealedCells']) > topPerformanceCutoff);
-            const sortedScores = filteredScores.sort((a, b) => calculatePerformance(b.time, b['boardSize'], b['numMines'], b['revealedCells']) - calculatePerformance(a.time, a['boardSize'], a['numMines'], a['revealedCells']));
+            const filteredScores = scores.filter(score => {
+                const {performance} = calculatePerformance(score.time, score['boardSize'], score['numMines'], score['revealedCells']);
+                return performance > topPerformanceCutoff;
+            });
+            const sortedScores = filteredScores.sort((a, b) => {
+                const {performance: aPerf} = calculatePerformance(a.time, a['boardSize'], a['numMines'], a['revealedCells']);
+                const {performance: bPerf} = calculatePerformance(b.time, b['boardSize'], b['numMines'], b['revealedCells']);
+                return bPerf - aPerf;
+            });
             const topScores = sortedScores.slice(0, topRankCutoff); // Only keep the top scores
             const topScoreTableBody = document.querySelector('#top-scores');
             topScoreTableBody.innerHTML = ''; // Clear previous entries
