@@ -17,6 +17,7 @@ let moveNumber = 0;
 let moveList = {}; // Pcab0
 let lastClickedRow = -1;
 let lastClickedCol = -1;
+let mineLocations = []; // Array to store mine positions
 
 const port = 3000;
 const boardElement = document.getElementById('board');
