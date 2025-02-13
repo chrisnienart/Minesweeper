@@ -18,6 +18,8 @@ let moveList = {}; // Pcab0
 let lastClickedRow = -1;
 let lastClickedCol = -1;
 let mineLocations = []; // Array to store mine positions
+let gameOver = false; // Track game over state
+let flagsPlaced = 0; // Track number of flags placed
 
 const port = 3000;
 const boardElement = document.getElementById('board');
