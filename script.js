@@ -90,7 +90,7 @@ async function initializeBoard() {
     console.log('Initializing board...');
     gameID = Date.now().toString();
     boardSize = await setBoardSize(); // Use global boardSize
-    percentMines = await setPercentMines();
+    const percentMines = await setPercentMines();
     numMines = Math.floor(percentMines * boardSize ** 2); // Use global numMines
 
     board = [];
