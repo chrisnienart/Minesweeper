@@ -1,4 +1,7 @@
 // Minesweeper Game
+
+import { calculatePerformance } from './metrics.js';
+
 let timerInterval;
 let board = [];
 let boardSize; // Define boardSize globally
@@ -181,6 +184,7 @@ function handleCellClick(event) {
     if (revealed === false && flagged === false) {
         clicks++;
         moveNumber++;
+        updatePace();
         revealCell(row, col);    
     }
 }
@@ -193,6 +197,7 @@ function handleRightClick(event) {
     const revealed = board[row][col].isRevealed;
     if (revealed === false) {
         moveNumber++;
+        updatePace();
         toggleFlag(row, col);
     }
 }
@@ -420,6 +425,17 @@ function startTimer() {
 
 function updateTimer() {
     timeElement.textContent = `Time: ${timeElapsed}`;
+}
+
+function updatePace() {
+    // const percentMines = numMines / (boardSize ** 2);
+    // const difficultyRatio = percentMines / (1 - percentMines);
+    // const adjustedNumMines = Math.round(boardSize ** 2 * difficultyRatio);
+    // const adjustedTime = Math.sqrt(timeElapsed / difficultyRatio);
+    // const pace = adjustedNumMines / adjustedTime;
+    // document.getElementById('pace').textContent = `Pace: ${pace.toFixed(2)}`;
+    const {pace} = calculatePerformance(timeElapsed, boardSize, numMines, revealedCount);
+    document.getElementById('pace').textContent = `Pace: ${pace.toFixed(2)}`;
 }
 
 function encodeStartingPosition(mineLocations, boardSize) {
