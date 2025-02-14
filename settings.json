@@ -1,5 +1,6 @@
 {
   "mode": "custom",
+  "displayMetrics": true,
   "modeOptions": {
     "simple": "easy",
     "simpleOptions": {
