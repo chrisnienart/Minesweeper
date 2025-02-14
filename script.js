@@ -93,6 +93,14 @@ function setPercentMines() {
 
 async function initializeBoard() {
     console.log('Initializing board...');
+    // Check metrics setting and update pace visibility
+    fetch('settings.json')
+        .then(response => response.json())
+        .then(settings => {
+            const paceElement = document.getElementById('pace');
+            paceElement.style.display = settings.displayMetrics ? 'inline' : 'none';
+        })
+        .catch(error => console.error('Error fetching settings:', error));
     gameID = Date.now().toString();
     boardSize = await setBoardSize(); // Use global boardSize
     const percentMines = await setPercentMines();
