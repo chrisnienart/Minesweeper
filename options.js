@@ -67,6 +67,16 @@ function fetchInitialSettings() {
                     console.log('Scoring radio set:', radio.value);
                 }
             });
+
+            // Set the initial metrics setting
+            const metricsRadios = document.querySelectorAll('input[name="metrics"]');
+            metricsRadios.forEach(radio => {
+                if ((radio.value === 'show' && settings.displayMetrics) ||
+                    (radio.value === 'hide' && !settings.displayMetrics)) {
+                    radio.checked = true;
+                    console.log('Metrics radio set:', radio.value);
+                }
+            });
         })
         .catch(error => console.error('Error fetching initial settings:', error));
 }
@@ -87,6 +97,7 @@ function saveOptions() {
             const customBoardSize = parseFloat(document.getElementById('customBoardSizeInput').value);
             const customPercentMines = parseFloat(document.getElementById('customPercentMinesInput').value);
             const scoring = document.querySelector('input[name="scoring"]:checked')?.value || 'rated';
+            const metrics = document.querySelector('input[name="metrics"]:checked')?.value === 'show';
 
             // Create a settings object
             const settingsToSave = {
@@ -105,7 +116,8 @@ function saveOptions() {
                         percentMines: customPercentMines
                     }
                 },
-                scoring: scoring
+                scoring: scoring,
+                displayMetrics: metrics
             };
 
             // Send a POST request to save the settings
