@@ -1,5 +1,5 @@
 {
-  "mode": "simple",
+  "mode": "custom",
   "modeOptions": {
     "simple": "easy",
     "simpleOptions": {
@@ -17,14 +17,14 @@
       }
     },
     "random": {
-      "minBoardSize": 12,
-      "maxBoardSize": 20,
-      "minPercentMines": 0.17,
-      "maxPercentMines": 0.22
+      "minBoardSize": 22,
+      "maxBoardSize": 26,
+      "minPercentMines": 0.22,
+      "maxPercentMines": 0.26
     },
     "custom": {
-      "boardSize": 12,
-      "percentMines": 0.22
+      "boardSize": 22,
+      "percentMines": 0.26
     }
   },
   "scoring": "rated"
