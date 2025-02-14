@@ -156,7 +156,6 @@ async function initializeBoard() {
         }
     }
     renderBoard(boardSize);
-    startTimer();
 }
 
 function countNeighborMines(row, col) {
@@ -199,6 +198,9 @@ function handleCellClick(event) {
     if (revealed === false && flagged === false) {
         clicks++;
         moveNumber++;
+        if (clicks === 1) {
+            startTimer();
+        }
         updatePace();
         revealCell(row, col);    
     }
