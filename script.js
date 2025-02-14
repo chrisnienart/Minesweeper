@@ -8,6 +8,7 @@ let boardSize; // Define boardSize globally
 let numMines; // Define numMines globally
 let settings; // Define settings globally
 let timeElapsed = 0; // Initialize timeElapsed globally
+let pace = 0; // Initialize pace globally
 let revealedCount = 0; // Define revealedCount globally
 let clicks = 0;
 let gameID; // Unique ID based on current timestamp
@@ -29,6 +30,7 @@ const scoresButton = document.getElementById('scores');
 const exitButton = document.getElementById('exit');
 const flagsElement = document.getElementById('flags');
 const timeElement = document.getElementById('time');
+const paceElement = document.getElementById('pace');
 
 function fetchSettings() {
     return fetch('settings.json')
@@ -101,6 +103,7 @@ async function initializeBoard() {
     gameOver = false;
     flagsPlaced = 0;
     timeElapsed = 0;
+    pace = 0;
     revealedCount = 0; // Reset revealedCount
     clicks = 0; // Reset clicks
     gameResult = "in progress"; // Reset gameResult
@@ -109,6 +112,7 @@ async function initializeBoard() {
     clearInterval(timerInterval);
     updateFlagsCount();
     updateTimer();
+    updatePace();
     // Create empty board
     for (let i = 0; i < boardSize; i++) {
         board[i] = [];
@@ -438,7 +442,7 @@ function updatePace() {
     // const pace = adjustedNumMines / adjustedTime;
     // document.getElementById('pace').textContent = `Pace: ${pace.toFixed(2)}`;
     const {pace} = calculatePerformance(timeElapsed, boardSize, numMines, revealedCount);
-    document.getElementById('pace').textContent = `Pace: ${pace.toFixed(2)}`;
+    paceElement.textContent = `Pace: ${pace.toFixed(2)}`;
 }
 
 function encodeStartingPosition(mineLocations, boardSize) {
