@@ -321,10 +321,11 @@ function updateMoveInfo(moveNumber) {
     }
 
     // Calculate and display pace
+    const numMines = selectedGame.mineLocations.length;
     const {pace} = calculatePerformance(
         time,
         selectedGame.boardSize,
-        selectedGame.numMines,
+        numMines,
         revealedCells
     );
     paceElement.textContent = `Pace: ${pace.toFixed(2)}`;
