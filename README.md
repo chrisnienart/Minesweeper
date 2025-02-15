@@ -14,7 +14,7 @@ In *Custom mode*, choose the exact board size and the percentage of mines in the
 ## Scoring
 Choose whether to track scores for wins, losses, or not at all. Games are ranked by *performance*, a metric based on completion percentage, board size, percentage of mines, and the time taken to complete the game.
 
-The *pace* represents performance if the game is completed at the current speed of play. The pace metric is displayed on the game screen while the performance is displayed when the game is over. The metrics can be toggled on and off in the *options* page.
+The *pace* represents performance if the game is completed at the current speed of play. The pace metric is displayed during gameplay and final performance is shown in game over alerts when metrics are enabled. Both metrics can be toggled on/off via the displayMetrics setting in the *options* page.
 
 ## Game Review
 Games can be replayed on a game board in a separate window. Review games by picking positions from the move list or cycle through positions with the *next* and *previous* buttons. 
