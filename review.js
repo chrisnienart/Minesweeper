@@ -452,7 +452,7 @@ function saveNotes() {
         if (!response.ok) {
             throw new Error('Failed to save notes');
         }
-        console.log('Notes saved successfully');
+        console.log(`Note saved for move ${currentMoveNumber}: "${notes}"`);
     })
     .catch(error => {
         console.error('Error saving notes:', error);
