@@ -1,3 +1,5 @@
+import { calculatePerformance } from './metrics.js';
+
 let timerInterval;
 let board = [];
 let boardSize; // Define boardSize globally
