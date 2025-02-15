@@ -416,8 +416,53 @@ document.getElementById('end').addEventListener('click', () => {
     updateBoardAndMoveInfo(maxMoveNumber);
 });
 
+// Function to save notes to the current move
+function saveNotes() {
+    const notes = document.getElementById('gameNotes').value;
+    if (!notes) return;
+
+    // Ensure move 0 exists
+    if (!moveList[0]) {
+        moveList[0] = {
+            moveType: 'I', // I for Initial
+            moveTime: 0,
+            cells: []
+        };
+    }
+
+    // Add notes to current move
+    if (!moveList[currentMoveNumber]) {
+        moveList[currentMoveNumber] = {
+            moveType: 'N', // N for Note
+            moveTime: timeElapsed,
+            cells: []
+        };
+    }
+    moveList[currentMoveNumber].notes = notes;
+
+    // Save to server
+    fetch(`http://localhost:${port}/games.json`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ games: [selectedGame] })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to save notes');
+        }
+        console.log('Notes saved successfully');
+    })
+    .catch(error => {
+        console.error('Error saving notes:', error);
+    });
+}
+
 // Initialize page on DOM content loaded
 document.addEventListener('DOMContentLoaded', () => {
+    // Add save button handler
+    document.getElementById('saveNotes').addEventListener('click', saveNotes);
     // Fetch settings to determine metrics visibility
     fetch('settings.json')
         .then(response => response.json())
