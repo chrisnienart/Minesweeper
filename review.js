@@ -247,6 +247,7 @@ function updateBoardAndMoveInfo(moveNumber) {
     updateBoardDisplay(currentMoveNumber, boardStates);
     updateMoveInfo(currentMoveNumber);
     updateMoveListDisplay();
+    updateMoveNotes(currentMoveNumber);
 }
 
 function updateBoardDisplay(moveNumber, boardStates) {
