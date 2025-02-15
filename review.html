@@ -35,6 +35,7 @@
             <div id="move-info">
                 <span id="move">Move: 0</span>
                 <span id="time">Time: 0</span>
+                <span id="pace" style="display: none;">Pace: 0.00</span>
             </div>
             <div id="move-controls">
                 <button id="start">Start</button>
@@ -59,6 +60,7 @@
         const gameIDDropdown = document.getElementById('gameIDDropdown');
         gameIDDropdown.innerHTML = `<option value="${gameID}">${gameID}</option>`;
     </script>
+    <script src="metrics.js"></script>
     <script src="review.js"></script>
 </body>
 </html>

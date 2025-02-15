@@ -297,12 +297,35 @@ function updateBoardDisplay(moveNumber, boardStates) {
 }
 
 function updateMoveInfo(moveNumber) {
+    const moveElement = document.getElementById('move');
+    const timeElement = document.getElementById('time');
+    const paceElement = document.getElementById('pace');
+    
     moveElement.textContent = `Move: ${moveNumber}`;
-    if (moveNumber === 0) {
-        timeElement.textContent = `Time: 0`;
-    } else{
-        timeElement.textContent = `Time: ${moveList[moveNumber].moveTime || 0}`;
+    const time = moveNumber === 0 ? 0 : (moveList[moveNumber]?.moveTime || 0);
+    timeElement.textContent = `Time: ${time}`;
+
+    // Calculate revealed cells for pace metric
+    let revealedCells = 0;
+    const boardState = boardStates[moveNumber];
+    if (boardState) {
+        for (let row = 0; row < boardSize; row++) {
+            for (let col = 0; col < boardSize; col++) {
+                if (boardState[row][col].isRevealed && !boardState[row][col].isMine) {
+                    revealedCells++;
+                }
+            }
+        }
     }
+
+    // Calculate and display pace
+    const {pace} = calculatePerformance(
+        time,
+        selectedGame.boardSize,
+        selectedGame.numMines,
+        revealedCells
+    );
+    paceElement.textContent = `Pace: ${pace.toFixed(2)}`;
 }
 
 function updateMoveListDisplay() {
@@ -391,6 +414,15 @@ document.getElementById('end').addEventListener('click', () => {
 
 // Initialize page on DOM content loaded
 document.addEventListener('DOMContentLoaded', () => {
+    // Fetch settings to determine metrics visibility
+    fetch('settings.json')
+        .then(response => response.json())
+        .then(settings => {
+            const paceElement = document.getElementById('pace');
+            paceElement.style.display = settings.displayMetrics ? 'inline' : 'none';
+        })
+        .catch(error => console.error('Error fetching settings:', error));
+
     // Populate dropdown first, then set game data
     populateGameIDDropdown()
         .then(game => {
