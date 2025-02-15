@@ -249,10 +249,13 @@ function revealCell(row, col) {
         
         // Delay the confirmation dialog to allow mines to be fully revealed
         setTimeout(() => {
-            const playAgain = confirm('Game Over! You hit a mine.\n\nWould you like to start a new game?');
-            if (playAgain) {
-                initializeBoard();
+            let message = 'Game Over! You hit a mine.';
+            if (settings.displayMetrics) {
+                const { performance } = calculatePerformance(timeElapsed, boardSize, numMines, revealedCount);
+                message += `\nPerformance: ${performance.toFixed(2)}`;
             }
+            const playAgain = confirm(message + '\n\nWould you like to start a new game?');
+            if (playAgain) initializeBoard();
         }, 100);  // Short delay to ensure visual reveal of mines
 
         if (settings.scoring === 'rated' && clicks > minClicks) {
@@ -359,10 +362,13 @@ function checkWinCondition() {
 
         // Delay the confirmation dialog to allow revealed cells to be highlighted
         setTimeout(() => {
-            const playAgain = confirm('Congratulations! You won!\n\nWould you like to start a new game?');
-            if (playAgain) {
-                initializeBoard();
+            let message = 'Congratulations! You won!';
+            if (settings.displayMetrics) {
+                const { performance } = calculatePerformance(timeElapsed, boardSize, numMines, revealedCount);
+                message += `\nPerformance: ${performance.toFixed(2)}`;
             }
+            const playAgain = confirm(message + '\n\nWould you like to start a new game?');
+            if (playAgain) initializeBoard();
             clearInterval(timerInterval);
         }, 100);  // Short delay to ensure visual revealed cells
 
