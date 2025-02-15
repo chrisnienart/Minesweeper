@@ -123,7 +123,7 @@ async function initializeBoard() {
     updateTimer();
     updatePace();
     board = createEmptyBoard(boardSize);
-    const { mineLocations } = placeMines(board, boardSize, numMines);
+    mineLocations = placeMines(board, boardSize, numMines);
     calculateNeighborMines();
     renderBoard(boardSize);
 }
@@ -156,7 +156,7 @@ function placeMines(board, boardSize, numMines) {
             minesPlaced++;
         }
     }
-    return { mineLocations, minesPlaced };
+    return mineLocations;
 }
 
 function calculateNeighborMines() {
