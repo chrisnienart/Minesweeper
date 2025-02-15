@@ -453,6 +453,14 @@ function saveNotes() {
             throw new Error('Failed to save notes');
         }
         console.log(`Note saved for move ${currentMoveNumber}: "${notes}"`);
+        
+        // Show success message
+        const successMessage = document.getElementById('saveNotesMessage');
+        successMessage.textContent = 'Notes updated';
+        successMessage.style.display = 'inline';
+        setTimeout(() => {
+            successMessage.style.display = 'none';
+        }, 1000);
     })
     .catch(error => {
         console.error('Error saving notes:', error);

@@ -190,9 +190,14 @@ th, td {
     min-height: 100px;
 }
 
-#saveNotes {
-    display: block;
+.notes-controls {
     margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#saveNotes {
     padding: 8px 16px;
     background-color: #4CAF50;
     color: white;
@@ -203,4 +208,10 @@ th, td {
 
 #saveNotes:hover {
     background-color: #45a049;
+}
+
+#saveNotesMessage {
+    color: #4CAF50;
+    font-weight: bold;
+    display: none;
 }
