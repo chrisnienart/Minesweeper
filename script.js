@@ -13,7 +13,6 @@ let revealedCount = 0; // Define revealedCount globally
 let clicks = 0;
 let gameID; // Unique ID based on current timestamp
 var gameResult = "in progress";
-let startingPosition = "";
 let moveNumber = 0;
 let moveList = {}; // Pcab0
 let lastClickedRow = -1;
@@ -42,8 +41,8 @@ function fetchSettings() {
         .catch(error => console.error('Error fetching settings:', error));
 }
 
-function setBoardSize() {
-    return fetchSettings().then(settings => {
+function setBoardSize(settings) {
+    return new Promise((resolve) => {
         if (settings.mode === 'simple') {
             if(settings.modeOptions.simple === 'easy') { 
                 boardSize = settings.modeOptions.simpleOptions.easy.boardSize;
@@ -64,12 +63,12 @@ function setBoardSize() {
         var root = document.querySelector(':root');
         var rootStyles = getComputedStyle(root);
         root.style.setProperty('--grid-size', boardSize);
-        return boardSize;
+        resolve(boardSize);
     });
 }
 
-function setPercentMines() {
-    return fetchSettings().then(settings => {
+function setPercentMines(settings) {
+    return new Promise((resolve) => {
         let percentMines;
         if (settings.mode === 'simple') {
             if (settings.modeOptions.simple === 'easy') { 
@@ -87,25 +86,24 @@ function setPercentMines() {
             percentMines = 0.09;
         }
         console.log('Percent mines set to: ', percentMines);
-        return percentMines;
+        resolve(percentMines);
     });
 }
 
 async function initializeBoard() {
     console.log('Initializing board...');
+    // Get settings once and use throughout
+    const settings = await fetchSettings();
+    
     // Check metrics setting and update pace visibility
-    fetch('settings.json')
-        .then(response => response.json())
-        .then(settings => {
-            const paceElement = document.getElementById('pace');
-            const performanceElement = document.getElementById('performance');
-            paceElement.style.display = settings.displayMetrics ? 'inline' : 'none';
-            performanceElement.style.display = settings.displayMetrics ? 'inline' : 'none';
-        })
-        .catch(error => console.error('Error fetching settings:', error));
+    const paceElement = document.getElementById('pace');
+    const performanceElement = document.getElementById('performance');
+    paceElement.style.display = settings.displayMetrics ? 'inline' : 'none';
+    performanceElement.style.display = settings.displayMetrics ? 'inline' : 'none';
+    
     gameID = Date.now().toString();
-    boardSize = await setBoardSize(); // Use global boardSize
-    const percentMines = await setPercentMines();
+    boardSize = await setBoardSize(settings); // Use global boardSize
+    const percentMines = await setPercentMines(settings);
     numMines = Math.floor(percentMines * boardSize ** 2); // Use global numMines
 
     board = [];
@@ -123,7 +121,14 @@ async function initializeBoard() {
     updateFlagsCount();
     updateTimer();
     updatePace();
-    // Create empty board
+    board = createEmptyBoard(boardSize);
+    mineLocations = placeMines(board, boardSize, numMines);
+    calculateNeighborMines(board, boardSize);
+    renderBoard(boardSize);
+}
+
+function createEmptyBoard(boardSize) {
+    const board = [];
     for (let i = 0; i < boardSize; i++) {
         board[i] = [];
         for (let j = 0; j < boardSize; j++) {
@@ -135,7 +140,11 @@ async function initializeBoard() {
             };
         }
     }
-    // Place mines
+    return board;
+}
+
+function placeMines(board, boardSize, numMines) {
+    const mineLocations = [];
     let minesPlaced = 0;
     while (minesPlaced < numMines) {
         const row = Math.floor(Math.random() * boardSize);
@@ -146,21 +155,20 @@ async function initializeBoard() {
             minesPlaced++;
         }
     }
-    // Encode starting position
-    startingPosition = encodeStartingPosition(mineLocations, boardSize);
+    return mineLocations;
+}
 
-    // Calculate neighbor mines
+function calculateNeighborMines(board, boardSize) {
     for (let i = 0; i < boardSize; i++) {
         for (let j = 0; j < boardSize; j++) {
             if (!board[i][j].isMine) {
-                board[i][j].neighborMines = countNeighborMines(i, j);
+                board[i][j].neighborMines = countNeighborMines(board, boardSize, i, j);
             }
         }
     }
-    renderBoard(boardSize);
 }
 
-function countNeighborMines(row, col) {
+function countNeighborMines(board, boardSize, row, col) {
     let count = 0;
     for (let i = -1; i <= 1; i++) {
         for (let j = -1; j <= 1; j++) {
@@ -464,39 +472,6 @@ function updatePace() {
     document.getElementById('performance').textContent = `Performance: ${performance.toFixed(2)}`;
 }
 
-function encodeStartingPosition(mineLocations, boardSize) {
-    // Create an array of '0's representing the board
-    const mineArray = new Array(boardSize ** 2).fill('0');
-    
-    // Mark mine locations with '1'
-    mineLocations.forEach(mine => {
-        const index = mine.row * boardSize + mine.col;
-        mineArray[index] = '1';
-    });
-    
-    let encodedString = `${boardSize},`;
-    let currentChar = mineArray[0];
-    let count = 1;
-
-    // Perform Run-Length Encoding, modified for binary strings
-    if(mineArray[0] === '1') {
-        encodedString += '0,';
-    }
-    for (let i = 1; i < mineArray.length; i++) {
-        if (mineArray[i] === currentChar) {
-            count++;
-        } else {
-            encodedString += `${count},`;
-            currentChar = mineArray[i];
-            count = 1;
-        }
-    }
-    
-    // Add the last run
-    encodedString += `${count}`;
-    
-    return encodedString;
-}
 
 function exitGame() {
     const confirmExit = confirm('Are you sure you want to exit?');
