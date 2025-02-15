@@ -98,7 +98,9 @@ async function initializeBoard() {
         .then(response => response.json())
         .then(settings => {
             const paceElement = document.getElementById('pace');
+            const performanceElement = document.getElementById('performance');
             paceElement.style.display = settings.displayMetrics ? 'inline' : 'none';
+            performanceElement.style.display = settings.displayMetrics ? 'inline' : 'none';
         })
         .catch(error => console.error('Error fetching settings:', error));
     gameID = Date.now().toString();
@@ -457,8 +459,9 @@ function updatePace() {
     // const adjustedTime = Math.sqrt(timeElapsed / difficultyRatio);
     // const pace = adjustedNumMines / adjustedTime;
     // document.getElementById('pace').textContent = `Pace: ${pace.toFixed(2)}`;
-    const {pace} = calculatePerformance(timeElapsed, boardSize, numMines, revealedCount);
+    const {pace, performance} = calculatePerformance(timeElapsed, boardSize, numMines, revealedCount);
     paceElement.textContent = `Pace: ${pace.toFixed(2)}`;
+    document.getElementById('performance').textContent = `Performance: ${performance.toFixed(2)}`;
 }
 
 function encodeStartingPosition(mineLocations, boardSize) {
