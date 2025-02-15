@@ -360,7 +360,7 @@ function updateMoveListDisplay() {
         const moveText = document.createElement('span');
         let moveTextContent;
         if (moveNumber == 0) {
-            moveTextContent = `${moveNumber}. Game notes`;
+            moveTextContent = `Game notes`;
         } else {
             const firstCell = move.cells && move.cells[0] ? `(${move.cells[0].row},${move.cells[0].col})` : '';
             moveTextContent = `${moveNumber}. ${move.moveType}${firstCell}`;

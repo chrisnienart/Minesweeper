@@ -462,7 +462,8 @@
               "row": 20,
               "col": 8
             }
-          ]
+          ],
+          "notes": "This is a test note for move 1"
         },
         "2": {
           "moveType": "R",
