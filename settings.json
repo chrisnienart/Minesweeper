@@ -1,6 +1,5 @@
 {
   "mode": "custom",
-  "displayMetrics": true,
   "modeOptions": {
     "simple": "easy",
     "simpleOptions": {
@@ -24,9 +23,10 @@
       "maxPercentMines": 0.26
     },
     "custom": {
-      "boardSize": 22,
+      "boardSize": 24,
       "percentMines": 0.26
     }
   },
-  "scoring": "rated"
+  "scoring": "rated",
+  "displayMetrics": true
 }

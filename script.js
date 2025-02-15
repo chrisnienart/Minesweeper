@@ -41,8 +41,8 @@ function fetchSettings() {
         .catch(error => console.error('Error fetching settings:', error));
 }
 
-function setBoardSize() {
-    return fetchSettings().then(settings => {
+function setBoardSize(settings) {
+    return new Promise((resolve) => {
         if (settings.mode === 'simple') {
             if(settings.modeOptions.simple === 'easy') { 
                 boardSize = settings.modeOptions.simpleOptions.easy.boardSize;
@@ -63,12 +63,12 @@ function setBoardSize() {
         var root = document.querySelector(':root');
         var rootStyles = getComputedStyle(root);
         root.style.setProperty('--grid-size', boardSize);
-        return boardSize;
+        resolve(boardSize);
     });
 }
 
-function setPercentMines() {
-    return fetchSettings().then(settings => {
+function setPercentMines(settings) {
+    return new Promise((resolve) => {
         let percentMines;
         if (settings.mode === 'simple') {
             if (settings.modeOptions.simple === 'easy') { 
@@ -86,25 +86,24 @@ function setPercentMines() {
             percentMines = 0.09;
         }
         console.log('Percent mines set to: ', percentMines);
-        return percentMines;
+        resolve(percentMines);
     });
 }
 
 async function initializeBoard() {
     console.log('Initializing board...');
+    // Get settings once and use throughout
+    const settings = await fetchSettings();
+    
     // Check metrics setting and update pace visibility
-    fetch('settings.json')
-        .then(response => response.json())
-        .then(settings => {
-            const paceElement = document.getElementById('pace');
-            const performanceElement = document.getElementById('performance');
-            paceElement.style.display = settings.displayMetrics ? 'inline' : 'none';
-            performanceElement.style.display = settings.displayMetrics ? 'inline' : 'none';
-        })
-        .catch(error => console.error('Error fetching settings:', error));
+    const paceElement = document.getElementById('pace');
+    const performanceElement = document.getElementById('performance');
+    paceElement.style.display = settings.displayMetrics ? 'inline' : 'none';
+    performanceElement.style.display = settings.displayMetrics ? 'inline' : 'none';
+    
     gameID = Date.now().toString();
-    boardSize = await setBoardSize(); // Use global boardSize
-    const percentMines = await setPercentMines();
+    boardSize = await setBoardSize(settings); // Use global boardSize
+    const percentMines = await setPercentMines(settings);
     numMines = Math.floor(percentMines * boardSize ** 2); // Use global numMines
 
     board = [];

@@ -6,5 +6,7 @@ settings.json
 games.json
 games.json.example
 
+*.old
+
 .aider*
 .env
