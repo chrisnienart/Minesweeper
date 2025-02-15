@@ -190,6 +190,10 @@ th, td {
     min-height: 100px;
 }
 
+#moveNotes {
+    margin-top: 10px;
+}
+
 .notes-controls {
     margin-top: 10px;
     display: flex;
