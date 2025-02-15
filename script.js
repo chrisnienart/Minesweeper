@@ -124,7 +124,7 @@ async function initializeBoard() {
     updatePace();
     board = createEmptyBoard(boardSize);
     mineLocations = placeMines(board, boardSize, numMines);
-    calculateNeighborMines();
+    calculateNeighborMines(board, boardSize);
     renderBoard(boardSize);
 }
 
@@ -159,17 +159,17 @@ function placeMines(board, boardSize, numMines) {
     return mineLocations;
 }
 
-function calculateNeighborMines() {
+function calculateNeighborMines(board, boardSize) {
     for (let i = 0; i < boardSize; i++) {
         for (let j = 0; j < boardSize; j++) {
             if (!board[i][j].isMine) {
-                board[i][j].neighborMines = countNeighborMines(i, j);
+                board[i][j].neighborMines = countNeighborMines(board, boardSize, i, j);
             }
         }
     }
 }
 
-function countNeighborMines(row, col) {
+function countNeighborMines(board, boardSize, row, col) {
     let count = 0;
     for (let i = -1; i <= 1; i++) {
         for (let j = -1; j <= 1; j++) {
