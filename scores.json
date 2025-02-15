@@ -1,24 +1,5 @@
 {
   "scores": [
-    {
-      "date": "2025-02-15",
-      "time": 9,
-      "mode": "custom",
-      "boardSize": 24,
-      "numMines": 149,
-      "result": "lost",
-      "revealedCells": 33,
-      "gameID": "1739640211547"
-    },
-    {
-      "date": "2025-02-15",
-      "time": 4,
-      "mode": "custom",
-      "boardSize": 24,
-      "numMines": 149,
-      "result": "lost",
-      "revealedCells": 16,
-      "gameID": "1739643611960"
-    }
+    
   ]
 }
