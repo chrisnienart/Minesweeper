@@ -72,6 +72,7 @@ function setGameData(gameID) {
             updateMoveListDisplay();
             updateBoardDisplay(currentMoveNumber, boardStates);
             updateMoveInfo(currentMoveNumber);
+            updateMoveNotes(currentMoveNumber);
 
             return selectedGame;
         })
@@ -295,6 +296,15 @@ function updateBoardDisplay(moveNumber, boardStates) {
 
             boardElement.appendChild(cell);
         }
+    }
+}
+
+function updateMoveNotes(moveNumber) {
+    const notesElement = document.getElementById('gameNotes');
+    if (moveList[moveNumber]?.notes) {
+        notesElement.value = moveList[moveNumber].notes;
+    } else {
+        notesElement.value = '';
     }
 }
 
