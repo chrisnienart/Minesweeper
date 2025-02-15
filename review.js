@@ -1,5 +1,6 @@
 import { calculatePerformance } from './metrics.js';
 
+const port = 3000; // Match server.js port
 let timerInterval;
 let board = [];
 let boardSize; // Define boardSize globally
