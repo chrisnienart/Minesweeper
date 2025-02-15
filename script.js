@@ -13,7 +13,6 @@ let revealedCount = 0; // Define revealedCount globally
 let clicks = 0;
 let gameID; // Unique ID based on current timestamp
 var gameResult = "in progress";
-let startingPosition = "";
 let moveNumber = 0;
 let moveList = {}; // Pcab0
 let lastClickedRow = -1;
@@ -146,9 +145,6 @@ async function initializeBoard() {
             minesPlaced++;
         }
     }
-    // Encode starting position
-    startingPosition = encodeStartingPosition(mineLocations, boardSize);
-
     // Calculate neighbor mines
     for (let i = 0; i < boardSize; i++) {
         for (let j = 0; j < boardSize; j++) {
@@ -464,39 +460,6 @@ function updatePace() {
     document.getElementById('performance').textContent = `Performance: ${performance.toFixed(2)}`;
 }
 
-function encodeStartingPosition(mineLocations, boardSize) {
-    // Create an array of '0's representing the board
-    const mineArray = new Array(boardSize ** 2).fill('0');
-    
-    // Mark mine locations with '1'
-    mineLocations.forEach(mine => {
-        const index = mine.row * boardSize + mine.col;
-        mineArray[index] = '1';
-    });
-    
-    let encodedString = `${boardSize},`;
-    let currentChar = mineArray[0];
-    let count = 1;
-
-    // Perform Run-Length Encoding, modified for binary strings
-    if(mineArray[0] === '1') {
-        encodedString += '0,';
-    }
-    for (let i = 1; i < mineArray.length; i++) {
-        if (mineArray[i] === currentChar) {
-            count++;
-        } else {
-            encodedString += `${count},`;
-            currentChar = mineArray[i];
-            count = 1;
-        }
-    }
-    
-    // Add the last run
-    encodedString += `${count}`;
-    
-    return encodedString;
-}
 
 function exitGame() {
     const confirmExit = confirm('Are you sure you want to exit?');
