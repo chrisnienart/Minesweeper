@@ -122,13 +122,14 @@ async function initializeBoard() {
     updateFlagsCount();
     updateTimer();
     updatePace();
-    createEmptyBoard();
+    board = createEmptyBoard(boardSize);
     placeMines();
     calculateNeighborMines();
     renderBoard(boardSize);
 }
 
-function createEmptyBoard() {
+function createEmptyBoard(boardSize) {
+    const board = [];
     for (let i = 0; i < boardSize; i++) {
         board[i] = [];
         for (let j = 0; j < boardSize; j++) {
@@ -140,6 +141,7 @@ function createEmptyBoard() {
             };
         }
     }
+    return board;
 }
 
 function placeMines() {
