@@ -358,8 +358,14 @@ function updateMoveListDisplay() {
         }
         
         const moveText = document.createElement('span');
-        const firstCell = move.cells && move.cells[0] ? `(${move.cells[0].row},${move.cells[0].col})` : '';
-        moveText.textContent = `${moveNumber}. ${move.moveType}${firstCell}`;
+        let moveTextContent;
+        if (moveNumber == 0) {
+            moveTextContent = `${moveNumber}. Game notes`;
+        } else {
+            const firstCell = move.cells && move.cells[0] ? `(${move.cells[0].row},${move.cells[0].col})` : '';
+            moveTextContent = `${moveNumber}. ${move.moveType}${firstCell}`;
+        }
+        moveText.textContent = moveTextContent;
         
         moveDiv.appendChild(moveText);
         moveListContainer.appendChild(moveDiv);
