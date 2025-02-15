@@ -123,7 +123,7 @@ async function initializeBoard() {
     updateTimer();
     updatePace();
     board = createEmptyBoard(boardSize);
-    placeMines();
+    const { mineLocations } = placeMines(board, boardSize, numMines);
     calculateNeighborMines();
     renderBoard(boardSize);
 }
@@ -144,7 +144,8 @@ function createEmptyBoard(boardSize) {
     return board;
 }
 
-function placeMines() {
+function placeMines(board, boardSize, numMines) {
+    const mineLocations = [];
     let minesPlaced = 0;
     while (minesPlaced < numMines) {
         const row = Math.floor(Math.random() * boardSize);
@@ -155,6 +156,7 @@ function placeMines() {
             minesPlaced++;
         }
     }
+    return { mineLocations, minesPlaced };
 }
 
 function calculateNeighborMines() {
