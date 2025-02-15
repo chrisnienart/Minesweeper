@@ -177,3 +177,15 @@ th, td {
 .cell.revealed.mine-8 {
     color: #808080; /* Gray */
 }
+#gameNotes {
+    width: 100%;
+    padding: 8px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 100px;
+}
