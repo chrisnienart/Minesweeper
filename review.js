@@ -322,13 +322,14 @@ function updateMoveInfo(moveNumber) {
 
     // Calculate and display pace
     const numMines = selectedGame.mineLocations.length;
-    const {pace} = calculatePerformance(
+    const {pace, performance} = calculatePerformance(
         time,
         selectedGame.boardSize,
         numMines,
         revealedCells
     );
     paceElement.textContent = `Pace: ${pace.toFixed(2)}`;
+    document.getElementById('performance').textContent = `Performance: ${performance.toFixed(2)}`;
 }
 
 function updateMoveListDisplay() {
@@ -422,7 +423,9 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(response => response.json())
         .then(settings => {
             const paceElement = document.getElementById('pace');
+            const performanceElement = document.getElementById('performance');
             paceElement.style.display = settings.displayMetrics ? 'inline' : 'none';
+            performanceElement.style.display = settings.displayMetrics ? 'inline' : 'none';
         })
         .catch(error => console.error('Error fetching settings:', error));
 
