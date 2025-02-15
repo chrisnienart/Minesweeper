@@ -431,21 +431,9 @@ function saveNotes() {
     const notes = document.getElementById('gameNotes').value;
     if (!notes) return;
 
-    // Ensure move 0 exists
-    if (!moveList[0]) {
-        moveList[0] = {
-            moveType: 'I', // I for Initial
-            moveTime: 0,
-            cells: []
-        };
-    }
-
     // Add notes to current move
     if (!moveList[currentMoveNumber]) {
         moveList[currentMoveNumber] = {
-            moveType: 'N', // N for Note
-            moveTime: timeElapsed,
-            cells: []
         };
     }
     moveList[currentMoveNumber].notes = notes;
