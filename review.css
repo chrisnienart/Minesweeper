@@ -134,6 +134,11 @@ th, td {
     position: relative; /* Add for positioning tooltip */
 }
 
+.cell.current-move-first-cell {
+    border: 3px solid #ff6b6b; /* Thicker, distinctive border for the first cell of the current move */
+    z-index: 1; /* Ensure the thicker border is visible */
+}
+
 .cell:hover::after {
     content: '(' attr(data-row) ',' attr(data-col) ')';
     position: absolute;
