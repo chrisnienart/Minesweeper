@@ -344,6 +344,37 @@ function updateMoveInfo(moveNumber) {
     document.getElementById('performance').textContent = `Performance: ${performance.toFixed(2)}`;
 }
 
+function createMoveText(moveNumber, move) {
+    const moveText = document.createElement('span');
+    const moveTextSpan = document.createElement('span');
+    moveTextSpan.className = 'move-text';
+    let moveTextContent;
+
+    if (moveNumber == 0) {
+        moveTextContent = `Game notes`;
+        moveTextSpan.textContent = moveTextContent;
+        moveText.appendChild(moveTextSpan);
+    } else {
+        const firstCell = move.cells && move.cells[0] ? `(${move.cells[0].row},${move.cells[0].col})` : '';
+        moveTextContent = `${moveNumber}. ${move.moveType}${firstCell}`;
+        
+        // Add notes preview if notes exist
+        if (move.notes) {
+            const notesSpan = document.createElement('span');
+            notesSpan.className = 'move-notes';
+            notesSpan.textContent = `${move.notes}`;
+            moveTextSpan.textContent = moveTextContent;
+            moveText.appendChild(moveTextSpan);
+            moveText.appendChild(notesSpan);
+        } else {
+            moveTextSpan.textContent = moveTextContent;
+            moveText.appendChild(moveTextSpan);
+        }
+    }
+
+    return moveText;
+}
+
 function updateMoveListDisplay() {
     if (!moveList) return;
     
@@ -357,32 +388,7 @@ function updateMoveListDisplay() {
             moveDiv.classList.add('current-move');
         }
         
-        const moveText = document.createElement('span');
-        const moveTextSpan = document.createElement('span');
-        moveTextSpan.className = 'move-text';
-        let moveTextContent;
-        if (moveNumber == 0) {
-            moveTextContent = `Game notes`;
-            moveTextSpan.textContent = moveTextContent;
-            moveText.appendChild(moveTextSpan);
-        } else {
-            const firstCell = move.cells && move.cells[0] ? `(${move.cells[0].row},${move.cells[0].col})` : '';
-            moveTextContent = `${moveNumber}. ${move.moveType}${firstCell}`;
-            
-            // Add notes preview if notes exist
-            if (move.notes) {
-                const notesSpan = document.createElement('span');
-                notesSpan.className = 'move-notes';
-                notesSpan.textContent = `${move.notes}`;
-                moveTextSpan.textContent = moveTextContent;
-                moveText.appendChild(moveTextSpan);
-                moveText.appendChild(notesSpan);
-            } else {
-                moveTextSpan.textContent = moveTextContent;
-                moveText.appendChild(moveTextSpan);
-            }
-        }
-        
+        const moveText = createMoveText(moveNumber, move);
         moveDiv.appendChild(moveText);
         moveListContainer.appendChild(moveDiv);
         
