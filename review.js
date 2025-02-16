@@ -466,22 +466,24 @@ function saveNotes() {
     const notes = document.getElementById('gameNotes').value;
     if (!notes && !moveList[currentMoveNumber]?.notes) return;
 
-    // First fetch the complete games list
+    // Update local data FIRST
+    updateLocalGameData();
+    
+    // Update UI immediately
+    updateMoveListDisplay();
+    updateMoveNotes(currentMoveNumber);
+
+    // Then save to server
     fetch(`http://localhost:${port}/games.json`)
     .then(response => response.json())
     .then(fullData => {
-        // Find and update the specific game
         const updatedGames = fullData.games.map(game => {
             if (game.gameID === selectedGame.gameID) {
-                const updatedMoveList = {...game.moveList};
-                updatedMoveList[currentMoveNumber] = updatedMoveList[currentMoveNumber] || {};
-                updatedMoveList[currentMoveNumber].notes = notes;
-                return {...game, moveList: updatedMoveList};
+                return selectedGame; // Use our locally updated copy
             }
             return game;
         });
 
-        // Save back the full dataset
         return fetch(`http://localhost:${port}/games.json`, {
             method: 'PUT',
             headers: {'Content-Type': 'application/json'},
@@ -496,10 +498,6 @@ function saveNotes() {
         successMessage.textContent = 'Notes updated';
         successMessage.style.display = 'inline';
         setTimeout(() => successMessage.style.display = 'none', 1000);
-        
-        // Add these two lines to refresh the display
-        updateMoveListDisplay();
-        updateMoveNotes(currentMoveNumber);
     })
     .catch(error => console.error('Error saving notes:', error));
 }
