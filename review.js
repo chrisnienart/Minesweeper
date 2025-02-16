@@ -366,23 +366,16 @@ function updateMoveListDisplay() {
             moveTextContent = `${moveNumber}. ${move.moveType}${firstCell}`;
             
             // Add notes preview if notes exist
+            if (move.notes) {
                 const notesSpan = document.createElement('span');
                 notesSpan.className = 'move-notes';
-                notesSpan.textContent = ` - ${move.notes}`;
+                notesSpan.textContent = `${move.notes}`;
                 moveText.textContent = moveTextContent;
                 moveText.appendChild(notesSpan);
->>>>>>> parent of b435dbe (feat: Show full move notes without truncation)
-            }
-=======
-                const notesSpan = document.createElement('span');
-                notesSpan.className = 'move-notes';
-                notesSpan.textContent = ` - ${move.notes}`;
+            } else {
                 moveText.textContent = moveTextContent;
-                moveText.appendChild(notesSpan);
->>>>>>> parent of b435dbe (feat: Show full move notes without truncation)
             }
         }
-        moveText.textContent = moveTextContent;
         
         moveDiv.appendChild(moveText);
         moveListContainer.appendChild(moveDiv);

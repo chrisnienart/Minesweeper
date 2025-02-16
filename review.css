@@ -95,6 +95,12 @@ body {
     font-weight: bold;
 }
 
+.move-notes {
+    font-style: italic;
+    color: #666;
+    margin-left: 4px;
+}
+
 #moveTable-container {
     text-align: center;
 }
