@@ -358,6 +358,8 @@ function updateMoveListDisplay() {
         }
         
         const moveText = document.createElement('span');
+        const moveTextSpan = document.createElement('span');
+        moveTextSpan.className = 'move-text';
         let moveTextContent;
         if (moveNumber == 0) {
             moveTextContent = `Game notes`;
@@ -370,10 +372,12 @@ function updateMoveListDisplay() {
                 const notesSpan = document.createElement('span');
                 notesSpan.className = 'move-notes';
                 notesSpan.textContent = `${move.notes}`;
-                moveText.textContent = moveTextContent;
+                moveTextSpan.textContent = moveTextContent;
+                moveText.appendChild(moveTextSpan);
                 moveText.appendChild(notesSpan);
             } else {
-                moveText.textContent = moveTextContent;
+                moveTextSpan.textContent = moveTextContent;
+                moveText.appendChild(moveTextSpan);
             }
         }
         

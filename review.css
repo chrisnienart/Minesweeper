@@ -86,11 +86,11 @@ body {
     display: inline-block;
 }
 
-.move-item:hover > span:first-child {
+.move-item:hover .move-text {
     background-color: #f0f0f0;
 }
 
-.move-item.current-move > span:first-child {
+.move-item.current-move .move-text {
     background-color: #e3f2fd;
     font-weight: bold;
 }
