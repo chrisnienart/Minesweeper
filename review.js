@@ -268,7 +268,6 @@ function updateBoardDisplay(moveNumber, boardStates) {
             cell.className = 'cell';
             cell.dataset.row = row;
             cell.dataset.col = col;
-            cell.title = `(${row},${col})`;
 
             // Add current-move-first-cell class to the first cell of the current move
             if (firstCell && firstCell.row === row && firstCell.col === col) {

@@ -135,7 +135,7 @@ th, td {
 }
 
 .cell.current-move-first-cell {
-    border: 3px solid #ff6b6b; /* Thicker, distinctive border for the first cell of the current move */
+    border: 2px solid #7b7b7b; /* Thicker, distinctive border for the first cell of the current move */
     z-index: 1; /* Ensure the thicker border is visible */
 }
 
