@@ -496,6 +496,10 @@ function saveNotes() {
         successMessage.textContent = 'Notes updated';
         successMessage.style.display = 'inline';
         setTimeout(() => successMessage.style.display = 'none', 1000);
+        
+        // Add these two lines to refresh the display
+        updateMoveListDisplay();
+        updateMoveNotes(currentMoveNumber);
     })
     .catch(error => console.error('Error saving notes:', error));
 }
