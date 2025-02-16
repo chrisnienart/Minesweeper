@@ -311,11 +311,8 @@ function updateBoardDisplay(moveNumber, boardStates) {
 
 function updateMoveNotes(moveNumber) {
     const notesElement = document.getElementById('gameNotes');
-    if (moveList[moveNumber]?.notes) {
-        notesElement.value = moveList[moveNumber].notes;
-    } else {
-        notesElement.value = '';
-    }
+    notesElement.value = moveList[moveNumber]?.notes || '';
+    updateLocalGameData();
 }
 
 function updateMoveInfo(moveNumber) {
@@ -467,40 +464,47 @@ document.getElementById('end').addEventListener('click', () => {
 // Function to save notes to the current move
 function saveNotes() {
     const notes = document.getElementById('gameNotes').value;
-    if (!notes) return;
+    if (!notes && !moveList[currentMoveNumber]?.notes) return;
 
-    // Add notes to current move
-    if (!moveList[currentMoveNumber]) {
-        moveList[currentMoveNumber] = {
-        };
-    }
-    moveList[currentMoveNumber].notes = notes;
+    // First fetch the complete games list
+    fetch(`http://localhost:${port}/games.json`)
+    .then(response => response.json())
+    .then(fullData => {
+        // Find and update the specific game
+        const updatedGames = fullData.games.map(game => {
+            if (game.gameID === selectedGame.gameID) {
+                const updatedMoveList = {...game.moveList};
+                updatedMoveList[currentMoveNumber] = updatedMoveList[currentMoveNumber] || {};
+                updatedMoveList[currentMoveNumber].notes = notes;
+                return {...game, moveList: updatedMoveList};
+            }
+            return game;
+        });
 
-    // Save to server
-    fetch(`http://localhost:${port}/games.json`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ games: [selectedGame] })
+        // Save back the full dataset
+        return fetch(`http://localhost:${port}/games.json`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({games: updatedGames})
+        });
     })
     .then(response => {
-        if (!response.ok) {
-            throw new Error('Failed to save notes');
-        }
-        console.log(`Note saved for move ${currentMoveNumber}: "${notes}"`);
+        if (!response.ok) throw new Error('Failed to save notes');
+        console.log(`Note saved for move ${currentMoveNumber}`);
         
-        // Show success message
         const successMessage = document.getElementById('saveNotesMessage');
         successMessage.textContent = 'Notes updated';
         successMessage.style.display = 'inline';
-        setTimeout(() => {
-            successMessage.style.display = 'none';
-        }, 1000);
+        setTimeout(() => successMessage.style.display = 'none', 1000);
     })
-    .catch(error => {
-        console.error('Error saving notes:', error);
-    });
+    .catch(error => console.error('Error saving notes:', error));
+}
+
+function updateLocalGameData() {
+    const updatedMoveList = {...selectedGame.moveList};
+    updatedMoveList[currentMoveNumber] = updatedMoveList[currentMoveNumber] || {};
+    updatedMoveList[currentMoveNumber].notes = document.getElementById('gameNotes').value;
+    selectedGame.moveList = updatedMoveList;
 }
 
 // Initialize page on DOM content loaded
