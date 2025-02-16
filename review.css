@@ -131,6 +131,23 @@ th, td {
     align-items: center;
     font-weight: bold;
     cursor: pointer;
+    position: relative; /* Add for positioning tooltip */
+}
+
+.cell:hover::after {
+    content: '(' attr(data-row) ',' attr(data-col) ')';
+    position: absolute;
+    background-color: rgba(0,0,0,0.7);
+    color: white;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 0.7em;
+    z-index: 10;
+    pointer-events: none;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
 }
 
 .cell.mine {

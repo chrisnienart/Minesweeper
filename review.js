@@ -265,6 +265,7 @@ function updateBoardDisplay(moveNumber, boardStates) {
             cell.className = 'cell';
             cell.dataset.row = row;
             cell.dataset.col = col;
+            cell.title = `(${row},${col})`; // Add coordinate tooltip
 
             const cellState = boardState[row][col];
             if (cellState.isRevealed) {
