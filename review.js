@@ -365,9 +365,12 @@ function updateMoveListDisplay() {
             const firstCell = move.cells && move.cells[0] ? `(${move.cells[0].row},${move.cells[0].col})` : '';
             moveTextContent = `${moveNumber}. ${move.moveType}${firstCell}`;
             
-            // Add notes indicator if notes exist
+            // Add notes preview if notes exist
             if (move.notes) {
-                moveTextContent += ' 📝';
+                // Get first line of notes and truncate if needed
+                const firstLine = move.notes.split('\n')[0];
+                const preview = firstLine.length > 20 ? firstLine.substring(0, 20) + '...' : firstLine;
+                moveTextContent += ` - ${preview}`;
             }
         }
         moveText.textContent = moveTextContent;
