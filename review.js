@@ -378,10 +378,11 @@ function updateMoveListDisplay() {
                 moveText.textContent = moveTextContent;
                 moveDiv.appendChild(moveText);
 =======
-                // Get first line of notes and truncate if needed
-                const firstLine = move.notes.split('\n')[0];
-                const preview = firstLine.length > 20 ? firstLine.substring(0, 20) + '...' : firstLine;
-                moveTextContent += ` - ${preview}`;
+                const notesSpan = document.createElement('span');
+                notesSpan.className = 'move-notes';
+                notesSpan.textContent = ` - ${move.notes}`;
+                moveText.textContent = moveTextContent;
+                moveText.appendChild(notesSpan);
 >>>>>>> parent of b435dbe (feat: Show full move notes without truncation)
             }
         }
