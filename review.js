@@ -366,17 +366,13 @@ function updateMoveListDisplay() {
             moveTextContent = `${moveNumber}. ${move.moveType}${firstCell}`;
             
             // Add notes preview if notes exist
-            if (move.notes) {
-<<<<<<< HEAD
                 const notesSpan = document.createElement('span');
                 notesSpan.className = 'move-notes';
                 notesSpan.textContent = ` - ${move.notes}`;
                 moveText.textContent = moveTextContent;
                 moveText.appendChild(notesSpan);
-                moveDiv.appendChild(moveText);
-            } else {
-                moveText.textContent = moveTextContent;
-                moveDiv.appendChild(moveText);
+>>>>>>> parent of b435dbe (feat: Show full move notes without truncation)
+            }
 =======
                 const notesSpan = document.createElement('span');
                 notesSpan.className = 'move-notes';
