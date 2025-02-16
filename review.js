@@ -259,12 +259,21 @@ function updateBoardDisplay(moveNumber, boardStates) {
 
     boardElement.innerHTML = '';
 
+    // Find the first cell associated with the current move
+    const firstCell = moveList[moveNumber]?.cells?.[0];
+
     for (let row = 0; row < boardSize; row++) {
         for (let col = 0; col < boardSize; col++) {
             const cell = document.createElement('div');
             cell.className = 'cell';
             cell.dataset.row = row;
             cell.dataset.col = col;
+            cell.title = `(${row},${col})`;
+
+            // Add current-move-first-cell class to the first cell of the current move
+            if (firstCell && firstCell.row === row && firstCell.col === col) {
+                cell.classList.add('current-move-first-cell');
+            }
 
             const cellState = boardState[row][col];
             if (cellState.isRevealed) {
