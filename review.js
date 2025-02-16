@@ -363,6 +363,8 @@ function updateMoveListDisplay() {
         let moveTextContent;
         if (moveNumber == 0) {
             moveTextContent = `Game notes`;
+            moveTextSpan.textContent = moveTextContent;
+            moveText.appendChild(moveTextSpan);
         } else {
             const firstCell = move.cells && move.cells[0] ? `(${move.cells[0].row},${move.cells[0].col})` : '';
             moveTextContent = `${moveNumber}. ${move.moveType}${firstCell}`;
