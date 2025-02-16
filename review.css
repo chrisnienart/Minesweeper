@@ -86,7 +86,7 @@ body {
     display: inline-block;
 }
 
-.move-item:hover {
+.move-item:hover > span:first-child {
     background-color: #f0f0f0;
 }
 
