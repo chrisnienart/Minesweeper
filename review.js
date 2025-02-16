@@ -364,6 +364,11 @@ function updateMoveListDisplay() {
         } else {
             const firstCell = move.cells && move.cells[0] ? `(${move.cells[0].row},${move.cells[0].col})` : '';
             moveTextContent = `${moveNumber}. ${move.moveType}${firstCell}`;
+            
+            // Add notes indicator if notes exist
+            if (move.notes) {
+                moveTextContent += ' 📝';
+            }
         }
         moveText.textContent = moveTextContent;
         
