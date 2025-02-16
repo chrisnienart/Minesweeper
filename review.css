@@ -90,7 +90,7 @@ body {
     background-color: #f0f0f0;
 }
 
-.move-item.current-move {
+.move-item.current-move > span:first-child {
     background-color: #e3f2fd;
     font-weight: bold;
 }
@@ -99,6 +99,7 @@ body {
     font-style: italic;
     color: #666;
     margin-left: 4px;
+    background-color: transparent !important;
 }
 
 #moveTable-container {
