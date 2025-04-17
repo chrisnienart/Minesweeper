@@ -1,5 +1,6 @@
 import { calculatePerformance } from './metrics.js';
 
+const port = 3000; // Match server.js port
 let timerInterval;
 let board = [];
 let boardSize; // Define boardSize globally
@@ -72,6 +73,7 @@ function setGameData(gameID) {
             updateMoveListDisplay();
             updateBoardDisplay(currentMoveNumber, boardStates);
             updateMoveInfo(currentMoveNumber);
+            updateMoveNotes(currentMoveNumber);
 
             return selectedGame;
         })
@@ -245,6 +247,7 @@ function updateBoardAndMoveInfo(moveNumber) {
     updateBoardDisplay(currentMoveNumber, boardStates);
     updateMoveInfo(currentMoveNumber);
     updateMoveListDisplay();
+    updateMoveNotes(currentMoveNumber);
 }
 
 function updateBoardDisplay(moveNumber, boardStates) {
@@ -256,12 +259,20 @@ function updateBoardDisplay(moveNumber, boardStates) {
 
     boardElement.innerHTML = '';
 
+    // Find the first cell associated with the current move
+    const firstCell = moveList[moveNumber]?.cells?.[0];
+
     for (let row = 0; row < boardSize; row++) {
         for (let col = 0; col < boardSize; col++) {
             const cell = document.createElement('div');
             cell.className = 'cell';
             cell.dataset.row = row;
             cell.dataset.col = col;
+
+            // Add current-move-first-cell class to the first cell of the current move
+            if (firstCell && firstCell.row === row && firstCell.col === col) {
+                cell.classList.add('current-move-first-cell');
+            }
 
             const cellState = boardState[row][col];
             if (cellState.isRevealed) {
@@ -298,6 +309,12 @@ function updateBoardDisplay(moveNumber, boardStates) {
     }
 }
 
+function updateMoveNotes(moveNumber) {
+    const notesElement = document.getElementById('gameNotes');
+    notesElement.value = moveList[moveNumber]?.notes || '';
+    updateLocalGameData();
+}
+
 function updateMoveInfo(moveNumber) {
     const moveElement = document.getElementById('move');
     const timeElement = document.getElementById('time');
@@ -332,6 +349,37 @@ function updateMoveInfo(moveNumber) {
     document.getElementById('performance').textContent = `Performance: ${performance.toFixed(2)}`;
 }
 
+function createMoveText(moveNumber, move) {
+    const moveText = document.createElement('span');
+    const moveTextSpan = document.createElement('span');
+    moveTextSpan.className = 'move-text';
+    let moveTextContent;
+
+    if (moveNumber == 0) {
+        moveTextContent = `Game notes`;
+        moveTextSpan.textContent = moveTextContent;
+        moveText.appendChild(moveTextSpan);
+    } else {
+        const firstCell = move.cells && move.cells[0] ? `(${move.cells[0].row},${move.cells[0].col})` : '';
+        moveTextContent = `${moveNumber}. ${move.moveType}${firstCell}`;
+        
+        // Add notes preview if notes exist
+        if (move.notes) {
+            const notesSpan = document.createElement('span');
+            notesSpan.className = 'move-notes';
+            notesSpan.textContent = `${move.notes}`;
+            moveTextSpan.textContent = moveTextContent;
+            moveText.appendChild(moveTextSpan);
+            moveText.appendChild(notesSpan);
+        } else {
+            moveTextSpan.textContent = moveTextContent;
+            moveText.appendChild(moveTextSpan);
+        }
+    }
+
+    return moveText;
+}
+
 function updateMoveListDisplay() {
     if (!moveList) return;
     
@@ -345,10 +393,7 @@ function updateMoveListDisplay() {
             moveDiv.classList.add('current-move');
         }
         
-        const moveText = document.createElement('span');
-        const firstCell = move.cells && move.cells[0] ? `(${move.cells[0].row},${move.cells[0].col})` : '';
-        moveText.textContent = `${moveNumber}. ${move.moveType}${firstCell}`;
-        
+        const moveText = createMoveText(moveNumber, move);
         moveDiv.appendChild(moveText);
         moveListContainer.appendChild(moveDiv);
         
@@ -416,8 +461,58 @@ document.getElementById('end').addEventListener('click', () => {
     updateBoardAndMoveInfo(maxMoveNumber);
 });
 
+// Function to save notes to the current move
+function saveNotes() {
+    const notes = document.getElementById('gameNotes').value;
+    if (!notes && !moveList[currentMoveNumber]?.notes) return;
+
+    // Update local data FIRST
+    updateLocalGameData();
+    
+    // Update UI immediately
+    updateMoveListDisplay();
+    updateMoveNotes(currentMoveNumber);
+
+    // Then save to server
+    fetch(`http://localhost:${port}/games.json`)
+    .then(response => response.json())
+    .then(fullData => {
+        const updatedGames = fullData.games.map(game => {
+            if (game.gameID === selectedGame.gameID) {
+                return selectedGame; // Use our locally updated copy
+            }
+            return game;
+        });
+
+        return fetch(`http://localhost:${port}/games.json`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({games: updatedGames})
+        });
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Failed to save notes');
+        console.log(`Note saved for move ${currentMoveNumber}`);
+        
+        const successMessage = document.getElementById('saveNotesMessage');
+        successMessage.textContent = 'Notes updated';
+        successMessage.style.display = 'inline';
+        setTimeout(() => successMessage.style.display = 'none', 1000);
+    })
+    .catch(error => console.error('Error saving notes:', error));
+}
+
+function updateLocalGameData() {
+    const updatedMoveList = {...selectedGame.moveList};
+    updatedMoveList[currentMoveNumber] = updatedMoveList[currentMoveNumber] || {};
+    updatedMoveList[currentMoveNumber].notes = document.getElementById('gameNotes').value;
+    selectedGame.moveList = updatedMoveList;
+}
+
 // Initialize page on DOM content loaded
 document.addEventListener('DOMContentLoaded', () => {
+    // Add save button handler
+    document.getElementById('saveNotes').addEventListener('click', saveNotes);
     // Fetch settings to determine metrics visibility
     fetch('settings.json')
         .then(response => response.json())

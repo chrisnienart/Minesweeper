@@ -86,13 +86,20 @@ body {
     display: inline-block;
 }
 
-.move-item:hover {
+.move-item:hover .move-text {
     background-color: #f0f0f0;
 }
 
-.move-item.current-move {
+.move-item.current-move .move-text {
     background-color: #e3f2fd;
     font-weight: bold;
+}
+
+.move-notes {
+    font-style: italic;
+    color: #666;
+    margin-left: 4px;
+    background-color: transparent !important;
 }
 
 #moveTable-container {
@@ -124,6 +131,28 @@ th, td {
     align-items: center;
     font-weight: bold;
     cursor: pointer;
+    position: relative; /* Add for positioning tooltip */
+}
+
+.cell.current-move-first-cell {
+    border: 2px solid #7b7b7b; /* Thicker, distinctive border for the first cell of the current move */
+    z-index: 1; /* Ensure the thicker border is visible */
+}
+
+.cell:hover::after {
+    content: '(' attr(data-row) ',' attr(data-col) ')';
+    position: absolute;
+    background-color: rgba(0,0,0,0.7);
+    color: white;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 0.7em;
+    z-index: 10;
+    pointer-events: none;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
 }
 
 .cell.mine {
@@ -176,4 +205,50 @@ th, td {
 
 .cell.revealed.mine-8 {
     color: #808080; /* Gray */
+}
+#gameNotes {
+    width: 100%;
+    padding: 8px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 100px;
+}
+
+#moveList {
+    margin-bottom: 10px;
+}
+
+#moveNotes {
+    margin-top: 10px;
+}
+
+.notes-controls {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#saveNotes {
+    padding: 8px 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#saveNotes:hover {
+    background-color: #45a049;
+}
+
+#saveNotesMessage {
+    color: #4CAF50;
+    font-weight: bold;
+    display: none;
 }

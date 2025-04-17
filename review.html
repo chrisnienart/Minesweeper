@@ -50,17 +50,16 @@
             <div id="moveList">
                 <!-- Move list will be dynamically added here -->
             </div>
+            <div id="moveNotes">
+                <h3>Edit Move Notes</h3>
+                <textarea id="gameNotes" rows="5" placeholder="Enter your notes about this game..."></textarea>
+                <div class="notes-controls">
+                    <button id="saveNotes">Save Notes</button>
+                    <span id="saveNotesMessage"></span>
+                </div>
+            </div>
         </div>
     </div>
-    <script>
-        // Read the gameID from the URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const gameID = urlParams.get('gameID');
-
-        // Display the gameID in the header
-        const gameIDDropdown = document.getElementById('gameIDDropdown');
-        gameIDDropdown.innerHTML = `<option value="${gameID}">${gameID}</option>`;
-    </script>
     <script type="module" src="review.js"></script>
 </body>
 </html>
