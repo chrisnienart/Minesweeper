@@ -13,14 +13,15 @@ export function calculatePerformance(time, boardSize, numMines, revealedCells) {
     const percentCleared = revealedCells / (boardSize ** 2 - numMines);
     const difficultyRatio = percentMines / (1 - percentMines);
     const adjustedNumMines = Math.round(boardSize ** 2 * difficultyRatio);
-    const adjustedTime = Math.sqrt(time / difficultyRatio);
+    const adjustedTimeForPerformance = Math.sqrt(time / difficultyRatio);
+    const adjustedTimeForPace = Math.sqrt((time / percentCleared) / difficultyRatio);
     
     let pace = 0;
     let performance = 0;
     
-    if (time > 0) {
-        pace = adjustedNumMines / adjustedTime;
-        performance = percentCleared ** 2 * pace;
+    if (time > 0 && percentCleared > 0) {
+        pace = adjustedNumMines / adjustedTimeForPace;
+        performance = percentCleared ** 2 * (adjustedNumMines / adjustedTimeForPerformance);
     }
     
     return {performance, pace};
