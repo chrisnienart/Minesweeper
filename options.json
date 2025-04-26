@@ -1,0 +1,28 @@
+{
+    "difficulty": {
+        "default": "simple",
+        "simple": {
+            "default": "easy"
+        },
+        "random": {
+            "boardSize": {
+                "min": 10,
+                "max": 20
+            },
+            "percentMines": {
+                "min": 0.10,
+                "max": 0.20
+            }
+        },
+        "custom": {
+            "boardSize": 10,
+            "percentMines": 0.15
+        }
+    },
+    "scoring": {
+        "default": "rated"
+    },
+    "metrics" :{
+        "default": "show"
+    }
+}
