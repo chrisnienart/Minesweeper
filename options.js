@@ -142,9 +142,7 @@ function saveOptions() {
                 }
             })
             .catch(error => console.error('Error saving settings:', error));
-        })
-        .catch(error => console.error('Error fetching current settings:', error));
-}
+        }
 
 function showConfirmationMessage() {
     const confirmationMessage = document.getElementById('confirmationMessage');
