@@ -97,43 +97,32 @@ function applyAllSettings(advancedOptions, settings) {
 }
 
 function saveOptions() {
-    fetchSettings()
-        .then(settings => {
-            console.log('Current settings fetched:', settings);
-            //retrieve simple mode settings
-            const simpleOptions = settings.modeOptions.simpleOptions;
-            
-            const mode = document.querySelector('input[name="mode"]:checked')?.value || 'simple';
-            const simpleDifficulty = document.querySelector('input[name="difficulty"]:checked')?.value || 'medium';
-            const randomMinBoardSize = parseFloat(document.getElementById('randomMinBoardSizeInput').value);
-            const randomMaxBoardSize = parseFloat(document.getElementById('randomMaxBoardSizeInput').value);
-            const randomMinPercentMines = parseFloat(document.getElementById('randomMinPercentMinesInput').value);
-            const randomMaxPercentMines = parseFloat(document.getElementById('randomMaxPercentMinesInput').value);
-            const customBoardSize = parseFloat(document.getElementById('customBoardSizeInput').value);
-            const customPercentMines = parseFloat(document.getElementById('customPercentMinesInput').value);
-            const scoring = document.querySelector('input[name="scoring"]:checked')?.value || 'rated';
-            const metrics = document.querySelector('input[name="metrics"]:checked')?.value === 'show';
+    console.log('Saving options...');
+    // Read current values from the form
+    const mode = document.querySelector('input[name="mode"]:checked')?.value || 'simple';
+    const simpleDifficulty = document.querySelector('input[name="difficulty"]:checked')?.value || 'medium';
+    const customBoardSize = parseFloat(document.getElementById('customBoardSizeInput').value);
+    const customPercentMines = parseFloat(document.getElementById('customPercentMinesInput').value);
+    const randomMinBoardSize = parseFloat(document.getElementById('randomMinBoardSizeInput').value);
+    const randomMaxBoardSize = parseFloat(document.getElementById('randomMaxBoardSizeInput').value);
+    const randomMinPercentMines = parseFloat(document.getElementById('randomMinPercentMinesInput').value);
+    const randomMaxPercentMines = parseFloat(document.getElementById('randomMaxPercentMinesInput').value);
+    const scoring = document.querySelector('input[name="scoring"]:checked')?.value || 'rated';
+    const metrics = document.querySelector('input[name="metrics"]:checked')?.value === 'show';
 
-            // Create a settings object
-            const settingsToSave = {
-                mode: mode,
-                modeOptions: {
-                    simple: simpleDifficulty,
-                    simpleOptions: simpleOptions,
-                    random: {
-                        minBoardSize: randomMinBoardSize,
-                        maxBoardSize: randomMaxBoardSize,
-                        minPercentMines: randomMinPercentMines,
-                        maxPercentMines: randomMaxPercentMines
-                    },
-                    custom: {
-                        boardSize: customBoardSize,
-                        percentMines: customPercentMines
-                    }
-                },
-                scoring: scoring,
-                displayMetrics: metrics
-            };
+    // Update the global currentSettings object
+    currentSettings.mode = mode;
+    currentSettings.modeOptions.simple = simpleDifficulty;
+    currentSettings.modeOptions.custom.boardSize = customBoardSize;
+    currentSettings.modeOptions.custom.percentMines = customPercentMines;
+    currentSettings.modeOptions.random.minBoardSize = randomMinBoardSize;
+    currentSettings.modeOptions.random.maxBoardSize = randomMaxBoardSize;
+    currentSettings.modeOptions.random.minPercentMines = randomMinPercentMines;
+    currentSettings.modeOptions.random.maxPercentMines = randomMaxPercentMines;
+    currentSettings.scoring = scoring;
+    currentSettings.displayMetrics = metrics;
+
+    console.log('Updated settings object:', currentSettings);
 
             // Send a POST request to save the settings
             fetch(`http://localhost:${port}/save-settings`, {
@@ -215,5 +204,18 @@ saveButton.addEventListener('click', saveOptions);
 const closeButton = document.getElementById('close');
 closeButton.addEventListener('click', () => window.close());
 
-// Fetch initial settings when the page loads
-window.onload = fetchInitialSettings;
+// Initialize the options page when the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log('DOM fully loaded. Initializing options page...');
+    try {
+        // Fetch both settings and advanced options concurrently
+        const [settingsData, advancedOptionsData] = await Promise.all([
+            fetchSettings(),
+            fetchAdvancedOptions()
+        ]);
+        currentSettings = settingsData; // Store fetched settings globally
+        applyAllSettings(advancedOptionsData, currentSettings); // Apply all settings to the form
+    } catch (error) {
+        console.error('Error during initialization:', error);
+    }
+});
