@@ -1,5 +1,8 @@
 const port = 3000;
 
+// Global variable to store the current settings state
+let currentSettings = {};
+
 function fetchSettings() {
     return fetch(`http://localhost:${port}/settings.json`)
         .then(response => {
@@ -11,7 +14,19 @@ function fetchSettings() {
         .catch(error => console.error('Error fetching settings:', error));
 }
 
-function fetchInitialSettings() {
+// Function to fetch advanced options constraints
+function fetchAdvancedOptions() {
+    return fetch('advanced-options.json')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok for advanced-options.json');
+            }
+            return response.json();
+        })
+        .catch(error => console.error('Error fetching advanced options:', error));
+}
+
+function applyAllSettings(advancedOptions, settings) {
     console.log('Fetching initial settings...');
     fetchSettings()
         .then(settings => {
