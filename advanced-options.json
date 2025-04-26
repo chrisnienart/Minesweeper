@@ -1,50 +1,6 @@
 {
-  "difficulty": {
-        "simpleOptions": {
-            "easy": {
-                "boardSize": 10,
-                "percentMines": 0.15
-            },
-            "medium": {
-                "boardSize": 12,
-                "percentMines": 0.18
-            },
-            "hard": {
-                "boardSize": 18,
-                "percentMines": 0.22
-            }
-        },
-        "random": {
-            "boardSize": {
-                "min": 8,
-                "max": 30
-            },
-            "percentMines": {
-                "min": 0.05,
-                "max": 0.30,
-                "step": 0.01
-            }
-        },
-        "custom": {
-            "boardSize": {
-                "min": 8,
-                "max": 30
-            },
-            "percentMines": {
-                "min": 0.05,
-                "max": 0.30,
-                "step": 0.01
-            }
-        }
-    },
-    "default_values": {
+  "options":{
         "difficulty": {
-            "default": "simple"
-        },
-        "modeOptions": {
-            "simple": {
-                "default": "easy"
-            },
             "simpleOptions": {
                 "easy": {
                     "boardSize": 10,
@@ -85,6 +41,58 @@
                     "max": 0.30,
                     "step": 0.01,
                     "default": 0.15
+                }
+            }
+        }
+    },
+    "default_values": {
+        "difficulty": {
+            "default": "simple",
+            "modeOptions": {
+                "simple": {
+                    "default": "easy"
+                },
+                "simpleOptions": {
+                    "easy": {
+                        "boardSize": 10,
+                        "percentMines": 0.15
+                    },
+                    "medium": {
+                        "boardSize": 12,
+                        "percentMines": 0.18
+                    },
+                    "hard": {
+                        "boardSize": 18,
+                        "percentMines": 0.22
+                    }
+                },
+                "random": {
+                    "boardSize": {
+                        "min": 8,
+                        "max": 30,
+                        "minDefault": 10,
+                        "maxDefault": 20
+                    },
+                    "percentMines": {
+                        "min": 0.05,
+                        "max": 0.30,
+                        "step": 0.01,
+                        "minDefault": 0.10,
+                        "maxDefault": 0.20
+                    }
+                },
+                "custom": {
+                    "boardSize": {
+                        "min": 8,
+                        "max": 30,
+                        "default": 10
+                    },
+                    "percentMines": {
+                        "min": 0.05,
+                        "max": 0.30,
+                        "step": 0.01,
+                        "default": 0.15
+                    }
                 }
             }
         },

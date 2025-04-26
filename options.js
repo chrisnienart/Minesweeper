@@ -3,6 +3,17 @@ const port = 3000;
 // Global variable to store the current settings state
 let currentSettings = {};
 
+function fetchConstraints() {
+    return fetch(`http://localhost:${port}/options.json`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .catch(error => console.error('Error fetching constraints on options:', error)); 
+}
+
 function fetchSettings() {
     return fetch(`http://localhost:${port}/settings.json`)
         .then(response => {
@@ -14,19 +25,7 @@ function fetchSettings() {
         .catch(error => console.error('Error fetching settings:', error));
 }
 
-// Function to fetch advanced options constraints
-function fetchAdvancedOptions() {
-    return fetch('advanced-options.json')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok for advanced-options.json');
-            }
-            return response.json();
-        })
-        .catch(error => console.error('Error fetching advanced options:', error));
-}
-
-function applyAllSettings(advancedOptions, settings) {
+function fetchInitialSettings() {
     console.log('Fetching initial settings...');
     fetchSettings()
         .then(settings => {
@@ -96,6 +95,57 @@ function applyAllSettings(advancedOptions, settings) {
         .catch(error => console.error('Error fetching initial settings:', error));
 }
 
+function applyConstraints(settings) {
+    // Update constraints for Random mode
+    const randomMinBoardSizeInput = document.getElementById('randomMinBoardSizeInput');
+    const randomMaxBoardSizeInput = document.getElementById('randomMaxBoardSizeInput');
+    const randomMinPercentMinesInput = document.getElementById('randomMinPercentMinesInput');
+    const randomMaxPercentMinesInput = document.getElementById('randomMaxPercentMinesInput');
+
+    if (randomMinBoardSizeInput && settings.difficulty?.modeOptions?.random?.boardSize) {
+        randomMinBoardSizeInput.min = settings.difficulty.modeOptions.random.boardSize.min;
+        randomMinBoardSizeInput.max = settings.difficulty.modeOptions.random.boardSize.max;
+        randomMinBoardSizeInput.value = settings.difficulty.modeOptions.random.boardSize.minDefault;
+    }
+
+    if (randomMaxBoardSizeInput && settings.difficulty?.modeOptions?.random?.boardSize) {
+        randomMaxBoardSizeInput.min = settings.difficulty.modeOptions.random.boardSize.min;
+        randomMaxBoardSizeInput.max = settings.difficulty.modeOptions.random.boardSize.max;
+        randomMaxBoardSizeInput.value = settings.difficulty.modeOptions.random.boardSize.maxDefault;
+    }
+
+    if (randomMinPercentMinesInput && settings.difficulty?.modeOptions?.random?.percentMines) {
+        randomMinPercentMinesInput.min = settings.difficulty.modeOptions.random.percentMines.min;
+        randomMinPercentMinesInput.max = settings.difficulty.modeOptions.random.percentMines.max;
+        randomMinPercentMinesInput.value = settings.difficulty.modeOptions.random.percentMines.minDefault;
+        randomMinPercentMinesInput.step = settings.difficulty.modeOptions.random.percentMines.step;
+    }
+
+    if (randomMaxPercentMinesInput && settings.difficulty?.modeOptions?.random?.percentMines) {
+        randomMaxPercentMinesInput.min = settings.difficulty.modeOptions.random.percentMines.min;
+        randomMaxPercentMinesInput.max = settings.difficulty.modeOptions.random.percentMines.max;
+        randomMaxPercentMinesInput.value = settings.difficulty.modeOptions.random.percentMines.maxDefault;
+        randomMaxPercentMinesInput.step = settings.difficulty.modeOptions.random.percentMines.step;
+    }
+
+    // Update constraints for Custom mode
+    const customBoardSizeInput = document.getElementById('customBoardSizeInput');
+    const customPercentMinesInput = document.getElementById('customPercentMinesInput');
+
+    if (customBoardSizeInput && settings.difficulty?.modeOptions?.custom?.boardSize) {
+        customBoardSizeInput.min = settings.difficulty.modeOptions.custom.boardSize.min;
+        customBoardSizeInput.max = settings.difficulty.modeOptions.custom.boardSize.max;
+        customBoardSizeInput.value = settings.difficulty.modeOptions.custom.boardSize.default;
+    }
+
+    if (customPercentMinesInput && settings.difficulty?.modeOptions?.custom?.percentMines) {
+        customPercentMinesInput.min = settings.difficulty.modeOptions.custom.percentMines.min;
+        customPercentMinesInput.max = settings.difficulty.modeOptions.custom.percentMines.max;
+        customPercentMinesInput.value = settings.difficulty.modeOptions.custom.percentMines.default;
+        customPercentMinesInput.step = settings.difficulty.modeOptions.custom.percentMines.step;
+    }
+}
+
 function saveOptions() {
     console.log('Saving options...');
     // Read current values from the form
@@ -130,11 +180,11 @@ function saveOptions() {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(settingsToSave)
+                body: JSON.stringify(currentSettings)
             })
             .then(response => {
                 if (response.ok) {
-                    console.log('Settings saved successfully:', settingsToSave);
+                    console.log('Settings saved successfully:', currentSettings);
                     showConfirmationMessage(); // Call the function to show confirmation message
                 } else {
                     console.error('Error saving settings. Status:', response.status);
@@ -194,6 +244,12 @@ document.getElementById('difficultyForm').addEventListener('change', function(ev
     }
 });
 
+// Call applyConstraints when the page loads, if not already
+document.addEventListener('DOMContentLoaded', applyConstraints);
+
+// Fetch initial settings when the page loads
+window.onload = fetchInitialSettings;
+
 // Save options
 const saveButton = document.getElementById('save');
 saveButton.addEventListener('click', saveOptions);
@@ -207,12 +263,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log('DOM fully loaded. Initializing options page...');
     try {
         // Fetch both settings and advanced options concurrently
-        const [settingsData, advancedOptionsData] = await Promise.all([
+        const [settingsData, constraintsData] = await Promise.all([
             fetchSettings(),
-            fetchAdvancedOptions()
+            fetchConstraints()
         ]);
         currentSettings = settingsData; // Store fetched settings globally
-        applyAllSettings(advancedOptionsData, currentSettings); // Apply all settings to the form
+        applyConstraints(constraintsData); // Apply constraints to forms
     } catch (error) {
         console.error('Error during initialization:', error);
     }
