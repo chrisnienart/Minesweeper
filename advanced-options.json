@@ -38,8 +38,13 @@
         }
     },
     "default_values": {
+        "difficulty": {
+            "default": "simple"
+        },
         "modeOptions": {
-            "simple": "easy",
+            "simple": {
+                "default": "easy"
+            },
             "simpleOptions": {
                 "easy": {
                     "boardSize": 10,
@@ -57,27 +62,37 @@
             "random": {
                 "boardSize": {
                     "min": 8,
-                    "max": 30
+                    "max": 30,
+                    "minDefault": 10,
+                    "maxDefault": 20
                 },
                 "percentMines": {
                     "min": 0.05,
                     "max": 0.30,
-                    "step": 0.01
+                    "step": 0.01,
+                    "minDefault": 0.10,
+                    "maxDefault": 0.20
                 }
             },
             "custom": {
                 "boardSize": {
                     "min": 8,
-                    "max": 30
+                    "max": 30,
+                    "default": 10
                 },
                 "percentMines": {
                     "min": 0.05,
                     "max": 0.30,
-                    "step": 0.01
+                    "step": 0.01,
+                    "default": 0.15
                 }
             }
         },
-        "scoring": "rated",
-        "displayMetrics": true
+        "scoring": {
+            "default": "rated"
+        },
+        "metrics" :{
+            "default": "show"
+        }
     }
 }
